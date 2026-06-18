@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BarberKing — Agendar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#0d0d0d; --surface:#161616; --card:#1e1e1e; --border:#2a2a2a;
+      --gold:#c9a84c; --gold-light:#e8c97a; --gold-dim:rgba(201,168,76,0.12);
+      --text:#f0ebe3; --muted:#7a7570; --danger:#e05555; --success:#4caf7d;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:500;min-height:100vh;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,13,0.96);backdrop-filter:blur(10px);z-index:100;}
+    .logo{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900;color:var(--gold);}
+
+    .hero{text-align:center;padding:3.5rem 2rem 2rem;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(201,168,76,0.07),transparent);}
+    .hero-tag{display:inline-block;font-size:0.72rem;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;border:1px solid var(--gold-dim);padding:0.3rem 0.9rem;border-radius:100px;margin-bottom:0.9rem;}
+    .hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.8rem);font-weight:900;line-height:1.05;margin-bottom:0.7rem;}
+    .hero h1 em{font-style:italic;color:var(--gold);}
+    .hero p{color:var(--muted);font-size:0.95rem;max-width:400px;margin:0 auto;line-height:1.7;}
+
+    .wrap{max-width:1080px;margin:0 auto;padding:2rem 1.5rem 4rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem;}
+    @media(max-width:760px){.wrap{grid-template-columns:1fr;padding:1.2rem 1rem 3rem;}}
+
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.6rem;}
+    .full{grid-column:1/-1;}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;margin-bottom:1.1rem;display:flex;align-items:center;gap:0.5rem;}
+    .ico{width:28px;height:28px;background:var(--gold-dim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.88rem;}
+    .hint{font-size:0.76rem;color:var(--muted);margin-bottom:0.8rem;}
+
+    /* SERVIÇOS */
+    .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;}
+    @media(max-width:400px){.svc-grid{grid-template-columns:1fr;}}
+    .svc{border:1.5px solid var(--border);border-radius:10px;padding:0.75rem 0.85rem;cursor:pointer;transition:all 0.15s;position:relative;}
+    .svc:hover{border-color:var(--gold);background:var(--gold-dim);}
+    .svc.sel{border-color:var(--gold);background:var(--gold-dim);}
+    .svc.sel::after{content:'✓';position:absolute;top:5px;right:7px;font-size:0.7rem;color:var(--gold);}
+    .svc-name{font-size:0.82rem;font-weight:500;margin-bottom:0.1rem;}
+    .svc-price{color:var(--gold);font-size:0.8rem;font-weight:600;}
+    .svc-time{color:var(--muted);font-size:0.7rem;}
+
+    /* BARBEIROS */
+    .brb-row{display:flex;gap:0.6rem;flex-wrap:wrap;}
+    .brb{display:flex;flex-direction:column;align-items:center;gap:0.3rem;cursor:pointer;padding:0.65rem 0.85rem;border-radius:10px;border:1.5px solid var(--border);transition:all 0.15s;min-width:72px;}
+    .brb:hover,.brb.sel{border-color:var(--gold);background:var(--gold-dim);}
+    .brb-av{width:42px;height:42px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:1.25rem;}
+    .brb-name{font-size:0.76rem;font-weight:500;}
+
+    /* CALENDÁRIO */
+    .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;}
+    .cal-header span{font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:700;}
+    .cal-nav{background:none;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0.25rem 0.6rem;cursor:pointer;transition:all 0.15s;font-size:0.9rem;}
+    .cal-nav:hover{border-color:var(--gold);color:var(--gold);}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+    .dl{text-align:center;font-size:0.65rem;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;padding-bottom:4px;}
+    .cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:7px;font-size:0.8rem;cursor:pointer;transition:all 0.13s;border:1px solid transparent;position:relative;}
+    .cd:hover:not(.dis):not(.emp):not(.full){border-color:var(--gold);background:var(--gold-dim);color:var(--gold);}
+    .cd.sel{background:var(--gold);color:#000;font-weight:700;}
+    .cd.today{border-color:var(--gold);color:var(--gold);}
+    .cd.dis{color:var(--border);cursor:not-allowed;}
+    .cd.emp{pointer-events:none;}
+    .cd.full{color:var(--danger);cursor:not-allowed;text-decoration:line-through;opacity:0.5;}
+    .cd.full::after{content:'•';position:absolute;bottom:1px;font-size:0.5rem;color:var(--danger);}
+    .cd.folga{color:var(--muted);cursor:not-allowed;opacity:0.45;}
+    .cd.folga::after{content:'🏖';position:absolute;bottom:0px;font-size:0.45rem;}
+
+    /* SLOTS */
+    .slots-wrap{margin-top:1rem;}
+    .slots-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;margin-top:0.5rem;}
+    @media(max-width:400px){.slots-grid{grid-template-columns:repeat(2,1fr);}}
+    .slot{text-align:center;padding:0.45rem;border-radius:7px;font-size:0.78rem;border:1px solid var(--border);cursor:pointer;transition:all 0.13s;font-weight:500;}
+    .slot:hover:not(.taken){border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+    .slot.sel{background:var(--gold);color:#000;border-color:var(--gold);}
+    .slot.taken{color:var(--border);cursor:not-allowed;text-decoration:line-through;}
+
+    /* PAGAMENTO */
+    .pay-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0.55rem;}
+    .pay-opt{border:1.5px solid var(--border);border-radius:10px;padding:0.8rem;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:0.6rem;}
+    .pay-opt:hover{border-color:var(--gold);background:var(--gold-dim);}
+    .pay-opt.sel{border-color:var(--gold);background:var(--gold-dim);}
+    .pay-opt.sel .pay-check{opacity:1;}
+    .pay-emoji{font-size:1.4rem;}
+    .pay-label{font-size:0.85rem;font-weight:500;}
+    .pay-check{opacity:0;color:var(--gold);font-size:0.8rem;margin-left:auto;transition:opacity 0.15s;}
+
+    /* FORM */
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+    @media(max-width:500px){.form-row{grid-template-columns:1fr;}}
+    .form-group{margin-bottom:0.9rem;}
+    label{display:block;font-size:0.72rem;font-weight:500;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;}
+    input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.7rem 0.9rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.88rem;transition:border-color 0.2s;outline:none;}
+    input:focus{border-color:var(--gold);}
+    input::placeholder{color:var(--muted);}
+
+    /* RESUMO */
+    .summary{background:var(--gold-dim);border:1px solid rgba(201,168,76,0.22);border-radius:10px;padding:0.9rem 1rem;margin-bottom:0.9rem;font-size:0.82rem;}
+    .sr{display:flex;justify-content:space-between;padding:0.2rem 0;}
+    .sr span:first-child{color:var(--muted);}
+    .sr span:last-child{font-weight:500;color:var(--gold);}
+    .sr.total{border-top:1px solid rgba(201,168,76,0.2);margin-top:0.4rem;padding-top:0.4rem;font-weight:700;font-size:0.9rem;}
+
+    .btn{width:100%;background:var(--gold);color:#000;border:none;padding:0.95rem;border-radius:10px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;letter-spacing:0.03em;transition:all 0.2s;margin-top:0.2rem;}
+    .btn:hover{background:var(--gold-light);transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,168,76,0.2);}
+    .btn:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+
+    hr{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+
+    /* CONFIRMAÇÃO */
+    .confirm-screen{display:none;text-align:center;padding:3rem 1.5rem;max-width:480px;margin:0 auto;}
+    .confirm-screen .check{font-size:4rem;margin-bottom:1rem;}
+    .confirm-screen h2{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:0.5rem;color:var(--gold);}
+    .confirm-screen p{color:var(--muted);line-height:1.7;margin-bottom:0.3rem;}
+    .confirm-code{display:inline-block;margin:1rem auto;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);border-radius:10px;padding:0.7rem 1.5rem;font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:var(--gold);letter-spacing:0.1em;}
+    .confirm-hint{font-size:0.78rem;color:var(--muted);margin-top:0.3rem;}
+
+    .btn-cancel-wrap{margin-top:1.5rem;display:flex;flex-direction:column;gap:0.7rem;align-items:center;}
+    .btn-novo{background:var(--gold);color:#000;border:none;padding:0.85rem 2rem;border-radius:10px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;font-size:0.95rem;width:100%;max-width:320px;}
+    .btn-cancelar-appt{background:none;border:1px solid var(--danger);color:var(--danger);padding:0.7rem 2rem;border-radius:10px;font-family:'Sora',sans-serif;font-weight:500;cursor:pointer;font-size:0.85rem;width:100%;max-width:320px;transition:all 0.15s;}
+    .btn-cancelar-appt:hover{background:rgba(224,85,85,0.1);}
+
+    /* CANCELAR POR CÓDIGO */
+    .cancel-screen{display:none;text-align:center;padding:3rem 1.5rem;max-width:440px;margin:0 auto;}
+    .cancel-screen h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.5rem;}
+    .cancel-screen p{color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;line-height:1.6;}
+    .cancel-inp-row{display:flex;gap:0.5rem;max-width:280px;margin:0 auto 1rem;}
+    .cancel-inp-row input{text-align:center;font-size:1.2rem;letter-spacing:0.15em;font-family:'Playfair Display',serif;}
+    .btn-back{background:none;border:1px solid var(--border);color:var(--muted);padding:0.6rem 1.2rem;border-radius:8px;font-family:'Sora',sans-serif;cursor:pointer;font-size:0.85rem;transition:all 0.15s;}
+    .btn-back:hover{border-color:var(--gold);color:var(--gold);}
+
+    .toast{position:fixed;bottom:1.5rem;right:1.5rem;left:1.5rem;max-width:360px;margin:0 auto;background:var(--success);color:#fff;padding:0.85rem 1.2rem;border-radius:10px;font-weight:600;font-size:0.88rem;box-shadow:0 8px 30px rgba(0,0,0,0.4);opacity:0;transform:translateY(12px);transition:all 0.3s;z-index:999;pointer-events:none;text-align:center;}
+    .toast.show{opacity:1;transform:translateY(0);}
+
+    @media(min-width:600px){.toast{left:auto;right:2rem;max-width:340px;text-align:left;}}
+
+    /* ===== COMPUTADOR (telas grandes) ===== */
+    @media(min-width:1024px){
+      .wrap{max-width:1200px;gap:1.8rem;padding:2.5rem 2rem 4.5rem;}
+      .slots-grid{grid-template-columns:repeat(4,1fr);}
+      .hero{padding:4.5rem 2rem 2.5rem;}
+    }
+    @media(min-width:1500px){
+      .wrap{max-width:1340px;}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo logo-nome">BarberKing</div>
+  <button style="background:none;border:1px solid var(--border);color:var(--muted);padding:0.4rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.78rem;cursor:pointer;" onclick="showCancel()">Cancelar agendamento</button>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">✦ Agendamento Online</div>
+  <h1>Reserve seu <em>horário</em></h1>
+  <p>Escolha o serviço, o barbeiro e o momento ideal para você.</p>
+</div>
+
+<!-- TELA CONFIRMAÇÃO -->
+<div class="confirm-screen" id="confirm-screen">
+  <div class="check">✅</div>
+  <h2>Agendado!</h2>
+  <p id="confirm-text"></p>
+  <p style="margin-top:1rem;font-size:0.84rem;color:var(--text);">Seu código de cancelamento:</p>
+  <div class="confirm-code" id="confirm-code"></div>
+  <p class="confirm-hint">Guarde este código caso precise cancelar seu agendamento.</p>
+  <div class="btn-cancel-wrap">
+    <button class="btn-novo" onclick="novoAgendamento()">Fazer novo agendamento</button>
+  </div>
+</div>
+
+<!-- TELA CANCELAMENTO POR CÓDIGO -->
+<div class="cancel-screen" id="cancel-screen">
+  <div style="font-size:2.5rem;margin-bottom:0.8rem;">🔍</div>
+  <h2>Cancelar Agendamento</h2>
+  <p>Digite o código que você recebeu ao agendar para cancelar seu horário.</p>
+  <div class="cancel-inp-row">
+    <input id="cancel-code-inp" type="text" maxlength="6" placeholder="000000" oninput="this.value=this.value.toUpperCase()"/>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:280px;margin:0 auto;">
+    <button class="btn" onclick="cancelarPorCodigo()">Cancelar meu agendamento</button>
+    <button class="btn-back" onclick="voltarInicio()">← Voltar</button>
+  </div>
+</div>
+
+<!-- FORMULÁRIO PRINCIPAL -->
+<div class="wrap" id="main-wrap">
+
+  <!-- SERVIÇOS + BARBEIRO -->
+  <div class="card">
+    <div class="card-title"><span class="ico">✂️</span> Serviços</div>
+    <p class="hint">Selecione um ou mais serviços</p>
+    <div class="svc-grid" id="svc-grid"></div>
+    <hr/>
+    <div class="card-title" style="margin-bottom:0.8rem"><span class="ico">💈</span> Barbeiro</div>
+    <div class="brb-row" id="brb-row"></div>
+  </div>
+
+  <!-- CALENDÁRIO + HORÁRIOS -->
+  <div class="card">
+    <div class="card-title"><span class="ico">📆</span> Data & Horário</div>
+    <div class="cal-header">
+      <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+      <span id="cal-label"></span>
+      <button class="cal-nav" onclick="changeMonth(1)">›</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+    <div id="slots-wrap" style="display:none">
+      <hr/>
+      <p class="hint" id="slots-label"></p>
+      <div class="slots-grid" id="slots-grid"></div>
+    </div>
+  </div>
+
+  <!-- PAGAMENTO -->
+  <div class="card full">
+    <div class="card-title"><span class="ico">💳</span> Forma de Pagamento</div>
+    <div class="pay-grid" id="pay-grid">
+      <div class="pay-opt" onclick="selPay('pix')" id="pay-pix">
+        <span class="pay-emoji">📱</span><span class="pay-label">Pix</span><span class="pay-check">✓</span>
+      </div>
+      <div class="pay-opt" onclick="selPay('credito')" id="pay-credito">
+        <span class="pay-emoji">💳</span><span class="pay-label">Crédito</span><span class="pay-check">✓</span>
+      </div>
+      <div class="pay-opt" onclick="selPay('debito')" id="pay-debito">
+        <span class="pay-emoji">🏧</span><span class="pay-label">Débito</span><span class="pay-check">✓</span>
+      </div>
+      <div class="pay-opt" onclick="selPay('dinheiro')" id="pay-dinheiro">
+        <span class="pay-emoji">💵</span><span class="pay-label">Dinheiro</span><span class="pay-check">✓</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DADOS + RESUMO -->
+  <div class="card full">
+    <div class="card-title"><span class="ico">👤</span> Seus Dados</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nome completo</label>
+        <input id="inp-nome" type="text" placeholder="Ex: João Silva"/>
+      </div>
+      <div class="form-group">
+        <label>WhatsApp</label>
+        <input id="inp-tel" type="tel" placeholder="(11) 99999-9999" oninput="maskPhone(this)"/>
+      </div>
+    </div>
+    <div id="summary-wrap" style="display:none">
+      <hr/>
+      <div class="summary" id="summary"></div>
+    </div>
+    <button class="btn" onclick="agendar()">Confirmar Agendamento ✨</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// HELPERS DE DADOS
+// ============================================================
+function getNome(){ return localStorage.getItem('bk_nome')||'BarberKing'; }
+function getServices(){ return JSON.parse(localStorage.getItem('bk_services')||'null')||[
+  {id:'corte',        name:'Corte',                              price:25,  time:30},
+  {id:'corte_sobr',   name:'Corte + Sobrancelha',                price:30,  time:40},
+  {id:'corte_luzes',  name:'Corte + Luzes',                      price:70,  time:90},
+  {id:'corte_pigm',   name:'Corte + Pigmentação',                price:45,  time:50},
+  {id:'corte_barba',  name:'Corte + Barba',                      price:35,  time:50},
+  {id:'corte_nevou',  name:'Corte + Nevou',                      price:100, time:90},
+  {id:'corte_pigm_sb',name:'Corte + Pigmentação + Sobrancelha',  price:50,  time:60},
+  {id:'corte_luz_sb', name:'Corte + Luzes + Sobrancelha',        price:75,  time:100},
+  {id:'luzes',        name:'Luzes',                              price:45,  time:60},
+  {id:'pigmentacao',  name:'Pigmentação',                        price:20,  time:30},
+  {id:'sobrancelha',  name:'Sobrancelha',                        price:10,  time:10},
+  {id:'barba',        name:'Barba',                              price:10,  time:20},
+  {id:'matizar',      name:'Matizar',                            price:10,  time:20},
+  {id:'rosa_azul',    name:'Pintar Rosa ou Azul',                price:35,  time:60},
+];}
+function getBarbers(){ return JSON.parse(localStorage.getItem('bk_barbers')||'null')||[{id:'vinicius',name:'Vinícius',emoji:'✂️',pw:'1234'}]; }
+function getAppts(){ return JSON.parse(localStorage.getItem('bk_appts')||'[]'); }
+
+function getSlots(){
+  const cfg = JSON.parse(localStorage.getItem('bk_horario')||'null');
+  if(!cfg) return ALL_SLOTS_DEFAULT;
+  const slots=[];
+  let [h,m]=cfg.inicio.split(':').map(Number);
+  const [eh,em]=cfg.fim.split(':').map(Number);
+  const inter=parseInt(cfg.intervalo)||30;
+  while(h<eh||(h===eh&&m<em)){
+    slots.push(h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0'));
+    m+=inter; if(m>=60){h+=Math.floor(m/60);m=m%60;}
+  }
+  return slots;
+}
+
+const ALL_SLOTS_DEFAULT=['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30',
+  '13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30'];
+
+// ============================================================
+// STATE
+// ============================================================
+let selSvcs=[], selBarber=null, selDate=null, selSlot=null, selPagamento=null;
+let curMonth=new Date();
+let lastApptId=null, lastApptCode=null;
+
+// ============================================================
+// RENDER
+// ============================================================
+function applyNome(){
+  const n=getNome();
+  document.querySelectorAll('.logo-nome').forEach(el=>el.textContent=n);
+  document.title=n+' — Agendar';
+}
+
+function renderSvcs(){
+  document.getElementById('svc-grid').innerHTML=getServices().map(s=>`
+    <div class="svc ${selSvcs.includes(s.id)?'sel':''}" onclick="toggleSvc('${s.id}')">
+      <div class="svc-name">${s.name}</div>
+      <div class="svc-price">R$ ${s.price}</div>
+      <div class="svc-time">⏱ ${s.time} min</div>
+    </div>`).join('');
+}
+
+function renderBrbs(){
+  document.getElementById('brb-row').innerHTML=getBarbers().map(b=>`
+    <div class="brb ${selBarber===b.id?'sel':''}" onclick="pickBarber('${b.id}')">
+      <div class="brb-av">${b.emoji}</div>
+      <div class="brb-name">${b.name}</div>
+    </div>`).join('');
+}
+
+function getTakenSlots(date, barberId){
+  return getAppts().filter(a=>a.date===date&&(!barberId||a.barberId===barberId)).map(a=>a.slot);
+}
+
+function isDayFull(date){
+  const slots=getSlots();
+  const taken=getTakenSlots(date, selBarber);
+  return slots.every(s=>taken.includes(s));
+}
+
+function getFolgas(){ return JSON.parse(localStorage.getItem('bk_folgas')||'[]'); }
+function getFolgasBarbeiro(id){ const map=JSON.parse(localStorage.getItem('bk_folgas_brb')||'{}'); return (id&&map[id])||[]; }
+
+function renderCal(){
+  const y=curMonth.getFullYear(), m=curMonth.getMonth(), now=new Date();
+  const folgas=getFolgas();
+  const folgasBrb=getFolgasBarbeiro(selBarber);
+  document.getElementById('cal-label').textContent=new Date(y,m,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+  const days=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  let html=days.map(d=>`<div class="dl">${d}</div>`).join('');
+  const first=new Date(y,m,1).getDay(), total=new Date(y,m+1,0).getDate();
+  for(let i=0;i<first;i++) html+=`<div class="cd emp"></div>`;
+  for(let d=1;d<=total;d++){
+    const date=new Date(y,m,d);
+    const past=date<new Date(now.getFullYear(),now.getMonth(),now.getDate());
+    const sun=date.getDay()===0;
+    const ds=fmtD(date);
+    const folga=folgas.includes(ds)||folgasBrb.includes(ds);
+    const lotado=!past&&!sun&&!folga&&isDayFull(ds);
+    const isSel=selDate===ds, isToday=ds===fmtD(now);
+    let cls='cd';
+    if(past||sun) cls+=' dis';
+    else if(folga) cls+=' folga';
+    else if(lotado) cls+=' full';
+    else if(isSel) cls+=' sel';
+    else if(isToday) cls+=' today';
+    const clickable=!past&&!sun&&!folga&&!lotado;
+    html+=`<div class="${cls}" title="${folga?'🏖️ Folga':lotado?'Lotado':''}" ${clickable?`onclick="pickDate('${ds}')"`:''}>${d}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML=html;
+}
+
+function renderSlots(){
+  const wrap=document.getElementById('slots-wrap');
+  if(!selDate){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  document.getElementById('slots-label').textContent=
+    new Date(selDate+'T12:00').toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  const taken=getTakenSlots(selDate, selBarber);
+  const slots=getSlots();
+  if(!slots.length){
+    document.getElementById('slots-grid').innerHTML=`<p style="color:var(--muted);font-size:0.82rem;grid-column:1/-1">Nenhum horário configurado.</p>`;
+    return;
+  }
+  document.getElementById('slots-grid').innerHTML=slots.map(s=>`
+    <div class="slot ${taken.includes(s)?'taken':''} ${selSlot===s?'sel':''}"
+         onclick="${taken.includes(s)?'':'pickSlot(\''+s+'\')'}">${s}</div>`).join('');
+}
+
+function renderSummary(){
+  const wrap=document.getElementById('summary-wrap');
+  const svcs=getServices().filter(s=>selSvcs.includes(s.id));
+  if(!svcs.length&&!selDate){wrap.style.display='none';return;}
+  const total=svcs.reduce((a,s)=>a+s.price,0);
+  const mins=svcs.reduce((a,s)=>a+s.time,0);
+  const barb=getBarbers().find(b=>b.id===selBarber);
+  const PAY_LABELS={pix:'📱 Pix',credito:'💳 Crédito',debito:'🏧 Débito',dinheiro:'💵 Dinheiro'};
+  let html='';
+  svcs.forEach(s=>{ html+=`<div class="sr"><span>${s.name}</span><span>R$ ${s.price}</span></div>`; });
+  if(barb)         html+=`<div class="sr"><span>Barbeiro</span><span>${barb.name}</span></div>`;
+  if(selDate)      html+=`<div class="sr"><span>Data</span><span>${new Date(selDate+'T12:00').toLocaleDateString('pt-BR')}</span></div>`;
+  if(selSlot)      html+=`<div class="sr"><span>Horário</span><span>${selSlot}</span></div>`;
+  if(selPagamento) html+=`<div class="sr"><span>Pagamento</span><span>${PAY_LABELS[selPagamento]}</span></div>`;
+  if(mins)         html+=`<div class="sr"><span>Duração est.</span><span>~${mins} min</span></div>`;
+  if(total)        html+=`<div class="sr total"><span>Total</span><span>R$ ${total}</span></div>`;
+  document.getElementById('summary').innerHTML=html;
+  wrap.style.display='block';
+}
+
+// ============================================================
+// ACTIONS
+// ============================================================
+function toggleSvc(id){
+  selSvcs=selSvcs.includes(id)?selSvcs.filter(s=>s!==id):[...selSvcs,id];
+  renderSvcs(); renderSummary();
+}
+function pickBarber(id){
+  selBarber=selBarber===id?null:id;
+  // se a data já escolhida cair numa folga do barbeiro (ou da barbearia), limpa a seleção
+  if(selDate && (getFolgas().includes(selDate) || getFolgasBarbeiro(selBarber).includes(selDate))){
+    selDate=null; selSlot=null;
+  }
+  renderBrbs(); renderCal(); renderSlots(); renderSummary();
+}
+function pickDate(ds){ selDate=ds; selSlot=null; renderCal(); renderSlots(); renderSummary(); }
+function pickSlot(s){ selSlot=s; renderSlots(); renderSummary(); }
+function changeMonth(d){ curMonth.setMonth(curMonth.getMonth()+d); renderCal(); }
+function selPay(tipo){
+  selPagamento=tipo;
+  document.querySelectorAll('.pay-opt').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('pay-'+tipo).classList.add('sel');
+  renderSummary();
+}
+
+function agendar(){
+  const nome=document.getElementById('inp-nome').value.trim();
+  const tel=document.getElementById('inp-tel').value.trim();
+  if(!nome)           return shake('inp-nome','Informe seu nome');
+  if(!tel)            return shake('inp-tel','Informe seu WhatsApp');
+  if(!selSvcs.length) return showToast('⚠️ Selecione pelo menos um serviço','#e05555');
+  if(!selBarber)      return showToast('⚠️ Escolha um barbeiro','#e05555');
+  if(!selDate)        return showToast('⚠️ Selecione uma data','#e05555');
+  if(!selSlot)        return showToast('⚠️ Escolha um horário','#e05555');
+  if(!selPagamento)   return showToast('⚠️ Escolha a forma de pagamento','#e05555');
+
+  const SERVICES=getServices(), BARBERS=getBarbers();
+  const svcs=SERVICES.filter(s=>selSvcs.includes(s.id));
+  const barb=BARBERS.find(b=>b.id===selBarber);
+  const total=svcs.reduce((a,s)=>a+s.price,0);
+  const code=Math.random().toString(36).substr(2,6).toUpperCase();
+
+  const appt={
+    id:Date.now().toString(), code,
+    name:nome, tel,
+    services:svcs.map(s=>s.name), serviceIds:selSvcs,
+    barber:barb.name, barberId:selBarber,
+    date:selDate, slot:selSlot, total,
+    pagamento:selPagamento,
+    createdAt:new Date().toISOString()
+  };
+
+  const appts=getAppts(); appts.push(appt);
+  localStorage.setItem('bk_appts',JSON.stringify(appts));
+
+  lastApptId=appt.id; lastApptCode=code;
+
+  // Notificação push pro barbeiro
+  enviarNotificacao(nome, barb.name, selSlot, selDate, svcs.map(s=>s.name).join(', '));
+
+  // Mostrar confirmação
+  const dataFmt=new Date(selDate+'T12:00').toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  const PAY={pix:'📱 Pix',credito:'💳 Crédito',debito:'🏧 Débito',dinheiro:'💵 Dinheiro'};
+  document.getElementById('confirm-text').innerHTML=
+    `<strong style="color:var(--text)">${nome}</strong>, seu agendamento foi confirmado!<br>
+     📅 ${dataFmt} às <strong style="color:var(--gold)">${selSlot}</strong><br>
+     💈 ${barb.name} · ✂️ ${svcs.map(s=>s.name).join(', ')}<br>
+     ${PAY[selPagamento]} · 💰 R$ ${total}`;
+  document.getElementById('confirm-code').textContent=code;
+
+  document.getElementById('main-wrap').style.display='none';
+  document.getElementById('confirm-screen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// Notificação push
+function enviarNotificacao(cliente, barbeiro, horario, data, servicos){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='granted'){
+    dispararNotif(cliente, barbeiro, horario, data, servicos);
+  }
+}
+function dispararNotif(cliente, barbeiro, horario, data, servicos){
+  const dataFmt=new Date(data+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
+  try{
+    new Notification('💈 Novo agendamento!',{
+      body:`${cliente} agendou para ${dataFmt} às ${horario}\n✂️ ${servicos}`,
+      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💈</text></svg>'
+    });
+  }catch(e){}
+}
+
+// Cancelamento por código
+function showCancel(){
+  document.getElementById('main-wrap').style.display='none';
+  document.getElementById('confirm-screen').style.display='none';
+  document.getElementById('cancel-screen').style.display='block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function voltarInicio(){
+  document.getElementById('cancel-screen').style.display='none';
+  document.getElementById('main-wrap').style.display='grid';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function cancelarPorCodigo(){
+  const code=document.getElementById('cancel-code-inp').value.trim().toUpperCase();
+  if(!code||code.length<4) return showToast('⚠️ Digite o código de cancelamento','#e05555');
+  const appts=getAppts();
+  const idx=appts.findIndex(a=>a.code===code);
+  if(idx===-1) return showToast('❌ Código não encontrado. Verifique e tente novamente.','#e05555');
+  const appt=appts[idx];
+  const dataFmt=new Date(appt.date+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long'});
+  if(!confirm(`Cancelar agendamento de ${appt.name} em ${dataFmt} às ${appt.slot}?`)) return;
+  appts.splice(idx,1);
+  localStorage.setItem('bk_appts',JSON.stringify(appts));
+  document.getElementById('cancel-code-inp').value='';
+  showToast('✅ Agendamento cancelado com sucesso!');
+  setTimeout(()=>voltarInicio(),1800);
+}
+
+function novoAgendamento(){
+  selSvcs=[]; selBarber=null; selDate=null; selSlot=null; selPagamento=null;
+  document.getElementById('inp-nome').value='';
+  document.getElementById('inp-tel').value='';
+  document.querySelectorAll('.pay-opt').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('main-wrap').style.display='grid';
+  document.getElementById('confirm-screen').style.display='none';
+  renderSvcs(); renderBrbs(); renderCal(); renderSlots(); renderSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function fmtD(d){ return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); }
+function maskPhone(el){ let v=el.value.replace(/\D/g,''); if(v.length>11)v=v.slice(0,11); if(v.length>6)v=`(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`; else if(v.length>2)v=`(${v.slice(0,2)}) ${v.slice(2)}`; else if(v.length)v=`(${v}`; el.value=v; }
+function showToast(msg,color){ const t=document.getElementById('toast'); t.textContent=msg; t.style.background=color||'var(--success)'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200); }
+function shake(id,msg){ const el=document.getElementById(id); el.style.borderColor='var(--danger)'; setTimeout(()=>el.style.borderColor='',800); showToast('⚠️ '+msg,'#e05555'); }
+
+// INIT
+applyNome();
+renderSvcs(); renderBrbs(); renderCal();
+</script>
+</body>
+</html>
