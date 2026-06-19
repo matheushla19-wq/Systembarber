@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin � BarberKing</title>
+  <title>Admin — BarberKing</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     :root{--bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;--border:#2a2a2a;--gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.12);--text:#f0ebe3;--muted:#7a7570;--danger:#e05555;--success:#4caf7d;}
@@ -110,7 +110,7 @@
     .pw-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.62rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
     .pw-row input:focus{border-color:var(--gold);}
 
-    /* HOR�RIOS */
+    /* HORÁRIOS */
     .horario-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.7rem;}
     @media(max-width:400px){.horario-grid{grid-template-columns:1fr;}}
     .horario-group label{display:block;font-size:0.7rem;font-weight:500;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;}
@@ -161,9 +161,9 @@
     <div class="logo logo-nome">BarberKing</div>
     <div class="nav-right">
       <span id="brb-tag" style="font-size:0.8rem;color:var(--gold);font-weight:600;"></span>
-      <button class="notif-btn" id="notif-btn" onclick="ativarNotificacoes()">?? Ativar alertas</button>
-      <button class="tab active" id="tab-agenda" onclick="showPage('agenda')">?? Agenda</button>
-      <button class="tab" id="tab-config" onclick="showPage('config')">?? Minha conta</button>
+      <button class="notif-btn" id="notif-btn" onclick="ativarNotificacoes()">🔔 Ativar alertas</button>
+      <button class="tab active" id="tab-agenda" onclick="showPage('agenda')">📋 Agenda</button>
+      <button class="tab" id="tab-config" onclick="showPage('config')">⚙️ Minha conta</button>
       <button class="btn-sair" onclick="sair()">Sair</button>
     </div>
   </nav>
@@ -173,8 +173,8 @@
     <div class="stats" id="stats"></div>
     <div class="filters">
       <input type="date" id="f-date" onchange="renderAgenda()"/>
-      <input type="text" id="f-search" placeholder="?? Buscar cliente..." oninput="renderAgenda()" style="min-width:160px"/>
-      <button class="btn-clear" onclick="clearFilters()">? Limpar</button>
+      <input type="text" id="f-search" placeholder="🔍 Buscar cliente..." oninput="renderAgenda()" style="min-width:160px"/>
+      <button class="btn-clear" onclick="clearFilters()">✕ Limpar</button>
     </div>
     <div class="appt-list" id="appt-list"></div>
   </div>
@@ -185,18 +185,18 @@
 
       <!-- ALTERAR MINHA SENHA -->
       <div class="card">
-        <div class="card-title"><span class="ico">??</span> Alterar minha senha</div>
-        <p class="section-label" style="margin-bottom:0.8rem">Essa � a senha que voc� usa para entrar neste painel</p>
+        <div class="card-title"><span class="ico">🔑</span> Alterar minha senha</div>
+        <p class="section-label" style="margin-bottom:0.8rem">Essa é a senha que você usa para entrar neste painel</p>
         <div class="pw-row">
-          <input type="password" id="new-pw" placeholder="Nova senha (m�n. 4 caracteres)" onkeydown="if(event.key==='Enter')changePassword()"/>
+          <input type="password" id="new-pw" placeholder="Nova senha (mín. 4 caracteres)" onkeydown="if(event.key==='Enter')changePassword()"/>
           <button class="btn-add" onclick="changePassword()">Salvar</button>
         </div>
       </div>
 
-      <!-- MINHAS FOLGAS � full width -->
+      <!-- MINHAS FOLGAS — full width -->
       <div class="card card-full">
-        <div class="card-title"><span class="ico">???</span> Meus dias de folga</div>
-        <p class="section-label" style="margin-bottom:1rem;text-transform:none;letter-spacing:0;font-size:0.82rem;">Marque um dia em que voc� n�o vai atender (imprevistos, folga). Esse dia some do calend�rio <b>s� para voc�</b> � os outros barbeiros continuam normalmente.</p>
+        <div class="card-title"><span class="ico">🏖️</span> Meus dias de folga</div>
+        <p class="section-label" style="margin-bottom:1rem;text-transform:none;letter-spacing:0;font-size:0.82rem;">Marque um dia em que você não vai atender (imprevistos, folga). Esse dia some do calendário <b>só para você</b> — os outros barbeiros continuam normalmente.</p>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
           <input type="date" id="folga-inp" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.58rem 0.8rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;"/>
           <button class="btn-add" onclick="addMinhaFolga()">+ Adicionar folga</button>
@@ -206,10 +206,10 @@
 
       <!-- INFO -->
       <div class="card card-full">
-        <div class="card-title"><span class="ico">??</span> Sobre o seu painel</div>
+        <div class="card-title"><span class="ico">💈</span> Sobre o seu painel</div>
         <p class="section-label" style="line-height:1.7;text-transform:none;letter-spacing:0;font-size:0.82rem;">
-          Aqui aparecem somente os agendamentos feitos para voc�.<br>
-          Servi�os, pre�os e hor�rios de funcionamento s�o definidos pelo dono da barbearia.
+          Aqui aparecem somente os agendamentos feitos para você.<br>
+          Serviços, preços e horários de funcionamento são definidos pelo dono da barbearia.
         </p>
       </div>
 
@@ -225,7 +225,7 @@
 // ============================================================
 // >>> COLE AQUI A SUA PROJECT URL E A SUA PUBLISHABLE KEY <<<
 const { createClient } = supabase;
-const db = createClient('SUA_PROJECT_URL', 'SUA_PUBLISHABLE_KEY');
+const db = createClient('https://jwftgagragtxfzqoezlx.supabase.co', 'sb_publishable_C0pQFSilHvpAtu4Tm2k6QQ_CyfH3P5-');
 
 // Cache em memoria: carregado 1x quando a pagina abre.
 const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
@@ -265,12 +265,12 @@ function getNome(){return DB.config.nome||'BarberKing';}
 // Garante que todo barbeiro tenha uma senha (compatibilidade com dados antigos)
 function migrateBarbers(){ /* nao e mais necessario com o banco de dados */ }
 
-// Quem est� logado
+// Quem está logado
 let currentBarberId=null;
 let currentBarberName='';
 
 // ============================================================
-// LOGIN (pela senha do pr�prio barbeiro)
+// LOGIN (pela senha do próprio barbeiro)
 // ============================================================
 async function doLogin(){
   await ready;
@@ -300,7 +300,7 @@ function sair(){
 // ============================================================
 function initApp(){
   applyLogos();
-  document.getElementById('brb-tag').textContent='?? '+currentBarberName;
+  document.getElementById('brb-tag').textContent='💈 '+currentBarberName;
   renderStats();
   renderAgenda();
   checkNotifStatus();
@@ -308,33 +308,33 @@ function initApp(){
 function applyLogos(){
   const n=getNome();
   document.querySelectorAll('.logo-nome').forEach(el=>el.textContent=n);
-  document.title='Barbeiro � '+n;
+  document.title='Barbeiro — '+n;
 }
 
 // ============================================================
-// NOTIFICA��ES
+// NOTIFICAÇÕES
 // ============================================================
 function checkNotifStatus(){
   const btn=document.getElementById('notif-btn');
   if(!('Notification' in window)){btn.style.display='none';return;}
   if(Notification.permission==='granted'){
-    btn.textContent='?? Alertas ativos'; btn.style.background='rgba(76,175,125,0.15)';
+    btn.textContent='🔔 Alertas ativos'; btn.style.background='rgba(76,175,125,0.15)';
     btn.style.color='var(--success)'; btn.style.borderColor='rgba(76,175,125,0.3)';
     btn.style.cursor='default';
   } else {
-    btn.textContent='?? Ativar alertas';
+    btn.textContent='🔔 Ativar alertas';
   }
 }
 function ativarNotificacoes(){
-  if(!('Notification' in window)) return toast('?? Seu navegador n�o suporta notifica��es','#e05555');
-  if(Notification.permission==='granted'){toast('? Alertas j� est�o ativos!');return;}
+  if(!('Notification' in window)) return toast('⚠️ Seu navegador não suporta notificações','#e05555');
+  if(Notification.permission==='granted'){toast('✅ Alertas já estão ativos!');return;}
   Notification.requestPermission().then(p=>{
     if(p==='granted'){
       checkNotifStatus();
-      toast('? Alertas ativados!');
-      new Notification('?? '+getNome(), {body:'Alertas ativados com sucesso!'});
+      toast('✅ Alertas ativados!');
+      new Notification('💈 '+getNome(), {body:'Alertas ativados com sucesso!'});
     } else {
-      toast('?? Permiss�o negada. Ative nas configura��es do navegador.','#e05555');
+      toast('⚠️ Permissão negada. Ative nas configurações do navegador.','#e05555');
     }
   });
 }
@@ -356,7 +356,7 @@ function renderStats(){
     <div class="stat"><div class="stat-val">R$ ${totalR}</div><div class="stat-label">Receita total</div></div>`;
 }
 
-const PAY_LABEL={pix:'?? Pix',credito:'?? Cr�dito',debito:'?? D�bito',dinheiro:'?? Dinheiro'};
+const PAY_LABEL={pix:'📱 Pix',credito:'💳 Crédito',debito:'🏧 Débito',dinheiro:'💵 Dinheiro'};
 
 function renderAgenda(){
   const fDate=document.getElementById('f-date').value;
@@ -368,7 +368,7 @@ function renderAgenda(){
 
   const list=document.getElementById('appt-list');
   if(!filtered.length){
-    list.innerHTML=`<div class="empty"><div>??</div>Nenhum agendamento encontrado.</div>`;
+    list.innerHTML=`<div class="empty"><div>📭</div>Nenhum agendamento encontrado.</div>`;
     return;
   }
   list.innerHTML=filtered.map(a=>{
@@ -377,22 +377,22 @@ function renderAgenda(){
     const mon=d.toLocaleDateString('pt-BR',{month:'short'});
     const svcs=a.services.join(', ');
     const telLimpo=a.tel.replace(/\D/g,'');
-    const msg=encodeURIComponent(`Ol� ${a.name}! Confirmando seu agendamento na ${getNome()} para ${d.toLocaleDateString('pt-BR')} �s ${a.slot}. ?? ${svcs}. Qualquer d�vida, estamos � disposi��o!`);
+    const msg=encodeURIComponent(`Olá ${a.name}! Confirmando seu agendamento na ${getNome()} para ${d.toLocaleDateString('pt-BR')} às ${a.slot}. ✂️ ${svcs}. Qualquer dúvida, estamos à disposição!`);
     const wppUrl=`https://wa.me/55${telLimpo}?text=${msg}`;
     return `
       <div class="appt-card" id="appt-${a.id}">
         <div class="appt-date-b"><div class="day">${day}</div><div class="mon">${mon}</div></div>
         <div class="appt-info">
           <div class="appt-name">${a.name}</div>
-          <div class="appt-meta">?? ${a.slot} � ?? ${svcs}</div>
-          <div class="appt-meta">?? ${a.tel} � ${PAY_LABEL[a.pagamento]||'�'}</div>
+          <div class="appt-meta">🕐 ${a.slot} · ✂️ ${svcs}</div>
+          <div class="appt-meta">📱 ${a.tel} · ${PAY_LABEL[a.pagamento]||'—'}</div>
         </div>
         <div class="appt-actions">
           <span class="badge">Confirmado</span>
           <span class="appt-total">R$ ${a.total||0}</span>
           <div class="appt-btns">
-            <a class="btn-wpp" href="${wppUrl}" target="_blank">?? WhatsApp</a>
-            <button class="btn-del" onclick="delAppt('${a.id}')">?</button>
+            <a class="btn-wpp" href="${wppUrl}" target="_blank">📲 WhatsApp</a>
+            <button class="btn-del" onclick="delAppt('${a.id}')">✕</button>
           </div>
         </div>
       </div>`;
@@ -402,9 +402,9 @@ function renderAgenda(){
 async function delAppt(id){
   if(!confirm('Cancelar este agendamento?')) return;
   const { error }=await db.from('appointments').delete().eq('id',id);
-  if(error){ console.error(error); return toast('? Erro ao cancelar','#e05555'); }
+  if(error){ console.error(error); return toast('❌ Erro ao cancelar','#e05555'); }
   DB.appts=DB.appts.filter(a=>a.id!==id);
-  renderStats(); renderAgenda(); toast('??? Agendamento cancelado','#888');
+  renderStats(); renderAgenda(); toast('🗑️ Agendamento cancelado','#888');
 }
 function clearFilters(){
   document.getElementById('f-date').value='';
@@ -413,26 +413,26 @@ function clearFilters(){
 }
 
 // ============================================================
-// MINHA SENHA (altera s� a senha deste barbeiro)
+// MINHA SENHA (altera só a senha deste barbeiro)
 // ============================================================
 async function changePassword(){
   const pw=document.getElementById('new-pw').value.trim();
-  if(!pw||pw.length<4) return toast('?? Senha muito curta (m�n. 4 caracteres)','#e05555');
+  if(!pw||pw.length<4) return toast('⚠️ Senha muito curta (mín. 4 caracteres)','#e05555');
   const barbers=getBarbers();
   const me=barbers.find(b=>b.id===currentBarberId);
-  if(!me) return toast('?? Erro ao identificar o barbeiro','#e05555');
-  // evita que a nova senha seja igual � de outro barbeiro
+  if(!me) return toast('⚠️ Erro ao identificar o barbeiro','#e05555');
+  // evita que a nova senha seja igual à de outro barbeiro
   if(barbers.some(b=>b.id!==currentBarberId && b.pw===pw))
-    return toast('?? Essa senha j� est� em uso por outro barbeiro','#e05555');
+    return toast('⚠️ Essa senha já está em uso por outro barbeiro','#e05555');
   const { error }=await db.from('barbers').update({pw}).eq('id',currentBarberId);
-  if(error){ console.error(error); return toast('? Erro ao salvar a senha','#e05555'); }
+  if(error){ console.error(error); return toast('❌ Erro ao salvar a senha','#e05555'); }
   me.pw=pw;
   document.getElementById('new-pw').value='';
-  toast('? Senha alterada!');
+  toast('✅ Senha alterada!');
 }
 
 // ============================================================
-// MINHAS FOLGAS (bloqueiam o calend�rio s� para este barbeiro)
+// MINHAS FOLGAS (bloqueiam o calendário só para este barbeiro)
 // ============================================================
 function getMinhasFolgas(){ return DB.folgasBrb[currentBarberId]||[]; }
 function renderMinhasFolgas(){
@@ -445,33 +445,33 @@ function renderMinhasFolgas(){
   el.innerHTML=folgas.map(d=>{
     const fmt=new Date(d+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
     return `<div style="display:flex;align-items:center;gap:0.4rem;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.25);border-radius:8px;padding:0.35rem 0.7rem;font-size:0.8rem;">
-      <span>??? ${fmt}</span>
-      <button onclick="removeMinhaFolga('${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">?</button>
+      <span>🏖️ ${fmt}</span>
+      <button onclick="removeMinhaFolga('${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">✕</button>
     </div>`;
   }).join('');
 }
 async function addMinhaFolga(){
   const d=document.getElementById('folga-inp').value;
-  if(!d) return toast('?? Selecione uma data','#e05555');
+  if(!d) return toast('⚠️ Selecione uma data','#e05555');
   const folgas=getMinhasFolgas();
-  if(folgas.includes(d)) return toast('?? Essa data j� est� marcada como folga','#e05555');
+  if(folgas.includes(d)) return toast('⚠️ Essa data já está marcada como folga','#e05555');
   const { error }=await db.from('folgas_barbeiro').insert({barber_id:currentBarberId,date:d});
-  if(error){ console.error(error); return toast('? Erro ao salvar a folga','#e05555'); }
+  if(error){ console.error(error); return toast('❌ Erro ao salvar a folga','#e05555'); }
   (DB.folgasBrb[currentBarberId]=DB.folgasBrb[currentBarberId]||[]).push(d);
   document.getElementById('folga-inp').value='';
   renderMinhasFolgas();
-  toast('? Folga adicionada!');
+  toast('✅ Folga adicionada!');
 }
 async function removeMinhaFolga(d){
   const { error }=await db.from('folgas_barbeiro').delete().eq('barber_id',currentBarberId).eq('date',d);
-  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  if(error){ console.error(error); return toast('❌ Erro ao remover','#e05555'); }
   DB.folgasBrb[currentBarberId]=getMinhasFolgas().filter(f=>f!==d);
   renderMinhasFolgas();
-  toast('??? Folga removida','#888');
+  toast('🗑️ Folga removida','#888');
 }
 
 // ============================================================
-// P�GINAS
+// PÁGINAS
 // ============================================================
 function showPage(p){
   ['agenda','config'].forEach(id=>{
