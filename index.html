@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>BarberKing — Agendar</title>
+  <title>BarberKing � Agendar</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -32,13 +32,13 @@
     .ico{width:28px;height:28px;background:var(--gold-dim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.88rem;}
     .hint{font-size:0.76rem;color:var(--muted);margin-bottom:0.8rem;}
 
-    /* SERVIÇOS */
+    /* SERVI�OS */
     .svc-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;}
     @media(max-width:400px){.svc-grid{grid-template-columns:1fr;}}
     .svc{border:1.5px solid var(--border);border-radius:10px;padding:0.75rem 0.85rem;cursor:pointer;transition:all 0.15s;position:relative;}
     .svc:hover{border-color:var(--gold);background:var(--gold-dim);}
     .svc.sel{border-color:var(--gold);background:var(--gold-dim);}
-    .svc.sel::after{content:'✓';position:absolute;top:5px;right:7px;font-size:0.7rem;color:var(--gold);}
+    .svc.sel::after{content:'?';position:absolute;top:5px;right:7px;font-size:0.7rem;color:var(--gold);}
     .svc-name{font-size:0.82rem;font-weight:500;margin-bottom:0.1rem;}
     .svc-price{color:var(--gold);font-size:0.8rem;font-weight:600;}
     .svc-time{color:var(--muted);font-size:0.7rem;}
@@ -50,7 +50,7 @@
     .brb-av{width:42px;height:42px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:1.25rem;}
     .brb-name{font-size:0.76rem;font-weight:500;}
 
-    /* CALENDÁRIO */
+    /* CALEND�RIO */
     .cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.8rem;}
     .cal-header span{font-family:'Playfair Display',serif;font-size:0.95rem;font-weight:700;}
     .cal-nav{background:none;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:0.25rem 0.6rem;cursor:pointer;transition:all 0.15s;font-size:0.9rem;}
@@ -64,9 +64,9 @@
     .cd.dis{color:var(--border);cursor:not-allowed;}
     .cd.emp{pointer-events:none;}
     .cd.full{color:var(--danger);cursor:not-allowed;text-decoration:line-through;opacity:0.5;}
-    .cd.full::after{content:'•';position:absolute;bottom:1px;font-size:0.5rem;color:var(--danger);}
+    .cd.full::after{content:'�';position:absolute;bottom:1px;font-size:0.5rem;color:var(--danger);}
     .cd.folga{color:var(--muted);cursor:not-allowed;opacity:0.45;}
-    .cd.folga::after{content:'🏖';position:absolute;bottom:0px;font-size:0.45rem;}
+    .cd.folga::after{content:'??';position:absolute;bottom:0px;font-size:0.45rem;}
 
     /* SLOTS */
     .slots-wrap{margin-top:1rem;}
@@ -109,7 +109,7 @@
 
     hr{border:none;border-top:1px solid var(--border);margin:1rem 0;}
 
-    /* CONFIRMAÇÃO */
+    /* CONFIRMA��O */
     .confirm-screen{display:none;text-align:center;padding:3rem 1.5rem;max-width:480px;margin:0 auto;}
     .confirm-screen .check{font-size:4rem;margin-bottom:1rem;}
     .confirm-screen h2{font-family:'Playfair Display',serif;font-size:1.8rem;margin-bottom:0.5rem;color:var(--gold);}
@@ -122,7 +122,7 @@
     .btn-cancelar-appt{background:none;border:1px solid var(--danger);color:var(--danger);padding:0.7rem 2rem;border-radius:10px;font-family:'Sora',sans-serif;font-weight:500;cursor:pointer;font-size:0.85rem;width:100%;max-width:320px;transition:all 0.15s;}
     .btn-cancelar-appt:hover{background:rgba(224,85,85,0.1);}
 
-    /* CANCELAR POR CÓDIGO */
+    /* CANCELAR POR C�DIGO */
     .cancel-screen{display:none;text-align:center;padding:3rem 1.5rem;max-width:440px;margin:0 auto;}
     .cancel-screen h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:0.5rem;}
     .cancel-screen p{color:var(--muted);font-size:0.88rem;margin-bottom:1.5rem;line-height:1.6;}
@@ -146,6 +146,7 @@
       .wrap{max-width:1340px;}
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -155,58 +156,58 @@
 </nav>
 
 <div class="hero">
-  <div class="hero-tag">✦ Agendamento Online</div>
-  <h1>Reserve seu <em>horário</em></h1>
-  <p>Escolha o serviço, o barbeiro e o momento ideal para você.</p>
+  <div class="hero-tag">? Agendamento Online</div>
+  <h1>Reserve seu <em>hor�rio</em></h1>
+  <p>Escolha o servi�o, o barbeiro e o momento ideal para voc�.</p>
 </div>
 
-<!-- TELA CONFIRMAÇÃO -->
+<!-- TELA CONFIRMA��O -->
 <div class="confirm-screen" id="confirm-screen">
-  <div class="check">✅</div>
+  <div class="check">?</div>
   <h2>Agendado!</h2>
   <p id="confirm-text"></p>
-  <p style="margin-top:1rem;font-size:0.84rem;color:var(--text);">Seu código de cancelamento:</p>
+  <p style="margin-top:1rem;font-size:0.84rem;color:var(--text);">Seu c�digo de cancelamento:</p>
   <div class="confirm-code" id="confirm-code"></div>
-  <p class="confirm-hint">Guarde este código caso precise cancelar seu agendamento.</p>
+  <p class="confirm-hint">Guarde este c�digo caso precise cancelar seu agendamento.</p>
   <div class="btn-cancel-wrap">
     <button class="btn-novo" onclick="novoAgendamento()">Fazer novo agendamento</button>
   </div>
 </div>
 
-<!-- TELA CANCELAMENTO POR CÓDIGO -->
+<!-- TELA CANCELAMENTO POR C�DIGO -->
 <div class="cancel-screen" id="cancel-screen">
-  <div style="font-size:2.5rem;margin-bottom:0.8rem;">🔍</div>
+  <div style="font-size:2.5rem;margin-bottom:0.8rem;">??</div>
   <h2>Cancelar Agendamento</h2>
-  <p>Digite o código que você recebeu ao agendar para cancelar seu horário.</p>
+  <p>Digite o c�digo que voc� recebeu ao agendar para cancelar seu hor�rio.</p>
   <div class="cancel-inp-row">
     <input id="cancel-code-inp" type="text" maxlength="6" placeholder="000000" oninput="this.value=this.value.toUpperCase()"/>
   </div>
   <div style="display:flex;flex-direction:column;gap:0.6rem;max-width:280px;margin:0 auto;">
     <button class="btn" onclick="cancelarPorCodigo()">Cancelar meu agendamento</button>
-    <button class="btn-back" onclick="voltarInicio()">← Voltar</button>
+    <button class="btn-back" onclick="voltarInicio()">? Voltar</button>
   </div>
 </div>
 
-<!-- FORMULÁRIO PRINCIPAL -->
+<!-- FORMUL�RIO PRINCIPAL -->
 <div class="wrap" id="main-wrap">
 
-  <!-- SERVIÇOS + BARBEIRO -->
+  <!-- SERVI�OS + BARBEIRO -->
   <div class="card">
-    <div class="card-title"><span class="ico">✂️</span> Serviços</div>
-    <p class="hint">Selecione um ou mais serviços</p>
+    <div class="card-title"><span class="ico">??</span> Servi�os</div>
+    <p class="hint">Selecione um ou mais servi�os</p>
     <div class="svc-grid" id="svc-grid"></div>
     <hr/>
-    <div class="card-title" style="margin-bottom:0.8rem"><span class="ico">💈</span> Barbeiro</div>
+    <div class="card-title" style="margin-bottom:0.8rem"><span class="ico">??</span> Barbeiro</div>
     <div class="brb-row" id="brb-row"></div>
   </div>
 
-  <!-- CALENDÁRIO + HORÁRIOS -->
+  <!-- CALEND�RIO + HOR�RIOS -->
   <div class="card">
-    <div class="card-title"><span class="ico">📆</span> Data & Horário</div>
+    <div class="card-title"><span class="ico">??</span> Data & Hor�rio</div>
     <div class="cal-header">
-      <button class="cal-nav" onclick="changeMonth(-1)">‹</button>
+      <button class="cal-nav" onclick="changeMonth(-1)">�</button>
       <span id="cal-label"></span>
-      <button class="cal-nav" onclick="changeMonth(1)">›</button>
+      <button class="cal-nav" onclick="changeMonth(1)">�</button>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
     <div id="slots-wrap" style="display:none">
@@ -218,30 +219,30 @@
 
   <!-- PAGAMENTO -->
   <div class="card full">
-    <div class="card-title"><span class="ico">💳</span> Forma de Pagamento</div>
+    <div class="card-title"><span class="ico">??</span> Forma de Pagamento</div>
     <div class="pay-grid" id="pay-grid">
       <div class="pay-opt" onclick="selPay('pix')" id="pay-pix">
-        <span class="pay-emoji">📱</span><span class="pay-label">Pix</span><span class="pay-check">✓</span>
+        <span class="pay-emoji">??</span><span class="pay-label">Pix</span><span class="pay-check">?</span>
       </div>
       <div class="pay-opt" onclick="selPay('credito')" id="pay-credito">
-        <span class="pay-emoji">💳</span><span class="pay-label">Crédito</span><span class="pay-check">✓</span>
+        <span class="pay-emoji">??</span><span class="pay-label">Cr�dito</span><span class="pay-check">?</span>
       </div>
       <div class="pay-opt" onclick="selPay('debito')" id="pay-debito">
-        <span class="pay-emoji">🏧</span><span class="pay-label">Débito</span><span class="pay-check">✓</span>
+        <span class="pay-emoji">??</span><span class="pay-label">D�bito</span><span class="pay-check">?</span>
       </div>
       <div class="pay-opt" onclick="selPay('dinheiro')" id="pay-dinheiro">
-        <span class="pay-emoji">💵</span><span class="pay-label">Dinheiro</span><span class="pay-check">✓</span>
+        <span class="pay-emoji">??</span><span class="pay-label">Dinheiro</span><span class="pay-check">?</span>
       </div>
     </div>
   </div>
 
   <!-- DADOS + RESUMO -->
   <div class="card full">
-    <div class="card-title"><span class="ico">👤</span> Seus Dados</div>
+    <div class="card-title"><span class="ico">??</span> Seus Dados</div>
     <div class="form-row">
       <div class="form-group">
         <label>Nome completo</label>
-        <input id="inp-nome" type="text" placeholder="Ex: João Silva"/>
+        <input id="inp-nome" type="text" placeholder="Ex: Jo�o Silva"/>
       </div>
       <div class="form-group">
         <label>WhatsApp</label>
@@ -252,7 +253,7 @@
       <hr/>
       <div class="summary" id="summary"></div>
     </div>
-    <button class="btn" onclick="agendar()">Confirmar Agendamento ✨</button>
+    <button class="btn" onclick="agendar()">Confirmar Agendamento ?</button>
   </div>
 
 </div>
@@ -261,30 +262,50 @@
 
 <script>
 // ============================================================
+// SUPABASE (banco de dados na nuvem)
+// ============================================================
+// >>> COLE AQUI A SUA PROJECT URL E A SUA PUBLISHABLE KEY <<<
+const { createClient } = supabase;
+const db = createClient('SUA_PROJECT_URL', 'SUA_PUBLISHABLE_KEY');
+
+// Cache em memoria: carregado 1x quando a pagina abre.
+const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
+
+async function loadAll(){
+  const [ap, br, sv, fo, fb, cf] = await Promise.all([
+    db.from('appointments').select('*'),
+    db.from('barbers').select('*'),
+    db.from('services').select('*'),
+    db.from('folgas').select('*'),
+    db.from('folgas_barbeiro').select('*'),
+    db.from('config').select('*')
+  ]);
+  DB.appts = (ap.data||[]).map(r=>({
+    id:r.id, code:r.code, name:r.name, tel:r.tel,
+    services:r.services||[], serviceIds:r.service_ids||[],
+    barber:r.barber, barberId:r.barber_id,
+    date:r.date, slot:r.slot, total:r.total,
+    pagamento:r.pagamento, createdAt:r.created_at
+  }));
+  DB.barbers  = br.data||[];
+  DB.services = sv.data||[];
+  DB.folgas   = (fo.data||[]).map(r=>r.date);
+  DB.folgasBrb = {};
+  (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
+  DB.config = {};
+  (cf.data||[]).forEach(r=>{ DB.config[r.key] = r.value; });
+}
+
+// ============================================================
 // HELPERS DE DADOS
 // ============================================================
-function getNome(){ return localStorage.getItem('bk_nome')||'BarberKing'; }
-function getServices(){ return JSON.parse(localStorage.getItem('bk_services')||'null')||[
-  {id:'corte',        name:'Corte',                              price:25,  time:30},
-  {id:'corte_sobr',   name:'Corte + Sobrancelha',                price:30,  time:40},
-  {id:'corte_luzes',  name:'Corte + Luzes',                      price:70,  time:90},
-  {id:'corte_pigm',   name:'Corte + Pigmentação',                price:45,  time:50},
-  {id:'corte_barba',  name:'Corte + Barba',                      price:35,  time:50},
-  {id:'corte_nevou',  name:'Corte + Nevou',                      price:100, time:90},
-  {id:'corte_pigm_sb',name:'Corte + Pigmentação + Sobrancelha',  price:50,  time:60},
-  {id:'corte_luz_sb', name:'Corte + Luzes + Sobrancelha',        price:75,  time:100},
-  {id:'luzes',        name:'Luzes',                              price:45,  time:60},
-  {id:'pigmentacao',  name:'Pigmentação',                        price:20,  time:30},
-  {id:'sobrancelha',  name:'Sobrancelha',                        price:10,  time:10},
-  {id:'barba',        name:'Barba',                              price:10,  time:20},
-  {id:'matizar',      name:'Matizar',                            price:10,  time:20},
-  {id:'rosa_azul',    name:'Pintar Rosa ou Azul',                price:35,  time:60},
-];}
-function getBarbers(){ return JSON.parse(localStorage.getItem('bk_barbers')||'null')||[{id:'vinicius',name:'Vinícius',emoji:'✂️',pw:'1234'}]; }
-function getAppts(){ return JSON.parse(localStorage.getItem('bk_appts')||'[]'); }
+function getNome(){ return DB.config.nome || 'BarberKing'; }
+function getServices(){ return DB.services; }
+function getBarbers(){ return DB.barbers; }
+function getAppts(){ return DB.appts; }
 
 function getSlots(){
-  const cfg = JSON.parse(localStorage.getItem('bk_horario')||'null');
+  const cfg = DB.config.horario || null;
   if(!cfg) return ALL_SLOTS_DEFAULT;
   const slots=[];
   let [h,m]=cfg.inicio.split(':').map(Number);
@@ -313,7 +334,7 @@ let lastApptId=null, lastApptCode=null;
 function applyNome(){
   const n=getNome();
   document.querySelectorAll('.logo-nome').forEach(el=>el.textContent=n);
-  document.title=n+' — Agendar';
+  document.title=n+' � Agendar';
 }
 
 function renderSvcs(){
@@ -321,7 +342,7 @@ function renderSvcs(){
     <div class="svc ${selSvcs.includes(s.id)?'sel':''}" onclick="toggleSvc('${s.id}')">
       <div class="svc-name">${s.name}</div>
       <div class="svc-price">R$ ${s.price}</div>
-      <div class="svc-time">⏱ ${s.time} min</div>
+      <div class="svc-time">? ${s.time} min</div>
     </div>`).join('');
 }
 
@@ -343,15 +364,15 @@ function isDayFull(date){
   return slots.every(s=>taken.includes(s));
 }
 
-function getFolgas(){ return JSON.parse(localStorage.getItem('bk_folgas')||'[]'); }
-function getFolgasBarbeiro(id){ const map=JSON.parse(localStorage.getItem('bk_folgas_brb')||'{}'); return (id&&map[id])||[]; }
+function getFolgas(){ return DB.folgas; }
+function getFolgasBarbeiro(id){ return (id&&DB.folgasBrb[id])||[]; }
 
 function renderCal(){
   const y=curMonth.getFullYear(), m=curMonth.getMonth(), now=new Date();
   const folgas=getFolgas();
   const folgasBrb=getFolgasBarbeiro(selBarber);
   document.getElementById('cal-label').textContent=new Date(y,m,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-  const days=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const days=['Dom','Seg','Ter','Qua','Qui','Sex','S�b'];
   let html=days.map(d=>`<div class="dl">${d}</div>`).join('');
   const first=new Date(y,m,1).getDay(), total=new Date(y,m+1,0).getDate();
   for(let i=0;i<first;i++) html+=`<div class="cd emp"></div>`;
@@ -370,7 +391,7 @@ function renderCal(){
     else if(isSel) cls+=' sel';
     else if(isToday) cls+=' today';
     const clickable=!past&&!sun&&!folga&&!lotado;
-    html+=`<div class="${cls}" title="${folga?'🏖️ Folga':lotado?'Lotado':''}" ${clickable?`onclick="pickDate('${ds}')"`:''}>${d}</div>`;
+    html+=`<div class="${cls}" title="${folga?'??? Folga':lotado?'Lotado':''}" ${clickable?`onclick="pickDate('${ds}')"`:''}>${d}</div>`;
   }
   document.getElementById('cal-grid').innerHTML=html;
 }
@@ -384,7 +405,7 @@ function renderSlots(){
   const taken=getTakenSlots(selDate, selBarber);
   const slots=getSlots();
   if(!slots.length){
-    document.getElementById('slots-grid').innerHTML=`<p style="color:var(--muted);font-size:0.82rem;grid-column:1/-1">Nenhum horário configurado.</p>`;
+    document.getElementById('slots-grid').innerHTML=`<p style="color:var(--muted);font-size:0.82rem;grid-column:1/-1">Nenhum hor�rio configurado.</p>`;
     return;
   }
   document.getElementById('slots-grid').innerHTML=slots.map(s=>`
@@ -399,14 +420,14 @@ function renderSummary(){
   const total=svcs.reduce((a,s)=>a+s.price,0);
   const mins=svcs.reduce((a,s)=>a+s.time,0);
   const barb=getBarbers().find(b=>b.id===selBarber);
-  const PAY_LABELS={pix:'📱 Pix',credito:'💳 Crédito',debito:'🏧 Débito',dinheiro:'💵 Dinheiro'};
+  const PAY_LABELS={pix:'?? Pix',credito:'?? Cr�dito',debito:'?? D�bito',dinheiro:'?? Dinheiro'};
   let html='';
   svcs.forEach(s=>{ html+=`<div class="sr"><span>${s.name}</span><span>R$ ${s.price}</span></div>`; });
   if(barb)         html+=`<div class="sr"><span>Barbeiro</span><span>${barb.name}</span></div>`;
   if(selDate)      html+=`<div class="sr"><span>Data</span><span>${new Date(selDate+'T12:00').toLocaleDateString('pt-BR')}</span></div>`;
-  if(selSlot)      html+=`<div class="sr"><span>Horário</span><span>${selSlot}</span></div>`;
+  if(selSlot)      html+=`<div class="sr"><span>Hor�rio</span><span>${selSlot}</span></div>`;
   if(selPagamento) html+=`<div class="sr"><span>Pagamento</span><span>${PAY_LABELS[selPagamento]}</span></div>`;
-  if(mins)         html+=`<div class="sr"><span>Duração est.</span><span>~${mins} min</span></div>`;
+  if(mins)         html+=`<div class="sr"><span>Dura��o est.</span><span>~${mins} min</span></div>`;
   if(total)        html+=`<div class="sr total"><span>Total</span><span>R$ ${total}</span></div>`;
   document.getElementById('summary').innerHTML=html;
   wrap.style.display='block';
@@ -421,7 +442,7 @@ function toggleSvc(id){
 }
 function pickBarber(id){
   selBarber=selBarber===id?null:id;
-  // se a data já escolhida cair numa folga do barbeiro (ou da barbearia), limpa a seleção
+  // se a data j� escolhida cair numa folga do barbeiro (ou da barbearia), limpa a sele��o
   if(selDate && (getFolgas().includes(selDate) || getFolgasBarbeiro(selBarber).includes(selDate))){
     selDate=null; selSlot=null;
   }
@@ -437,16 +458,16 @@ function selPay(tipo){
   renderSummary();
 }
 
-function agendar(){
+async function agendar(){
   const nome=document.getElementById('inp-nome').value.trim();
   const tel=document.getElementById('inp-tel').value.trim();
   if(!nome)           return shake('inp-nome','Informe seu nome');
   if(!tel)            return shake('inp-tel','Informe seu WhatsApp');
-  if(!selSvcs.length) return showToast('⚠️ Selecione pelo menos um serviço','#e05555');
-  if(!selBarber)      return showToast('⚠️ Escolha um barbeiro','#e05555');
-  if(!selDate)        return showToast('⚠️ Selecione uma data','#e05555');
-  if(!selSlot)        return showToast('⚠️ Escolha um horário','#e05555');
-  if(!selPagamento)   return showToast('⚠️ Escolha a forma de pagamento','#e05555');
+  if(!selSvcs.length) return showToast('?? Selecione pelo menos um servi�o','#e05555');
+  if(!selBarber)      return showToast('?? Escolha um barbeiro','#e05555');
+  if(!selDate)        return showToast('?? Selecione uma data','#e05555');
+  if(!selSlot)        return showToast('?? Escolha um hor�rio','#e05555');
+  if(!selPagamento)   return showToast('?? Escolha a forma de pagamento','#e05555');
 
   const SERVICES=getServices(), BARBERS=getBarbers();
   const svcs=SERVICES.filter(s=>selSvcs.includes(s.id));
@@ -464,22 +485,29 @@ function agendar(){
     createdAt:new Date().toISOString()
   };
 
-  const appts=getAppts(); appts.push(appt);
-  localStorage.setItem('bk_appts',JSON.stringify(appts));
+  const { error }=await db.from('appointments').insert({
+    id:appt.id, code:appt.code, name:appt.name, tel:appt.tel,
+    services:appt.services, service_ids:appt.serviceIds,
+    barber:appt.barber, barber_id:appt.barberId,
+    date:appt.date, slot:appt.slot, total:appt.total,
+    pagamento:appt.pagamento, created_at:appt.createdAt
+  });
+  if(error){ console.error(error); return showToast('? Erro ao salvar o agendamento. Tente de novo.','#e05555'); }
+  DB.appts.push(appt);
 
   lastApptId=appt.id; lastApptCode=code;
 
-  // Notificação push pro barbeiro
+  // Notifica��o push pro barbeiro
   enviarNotificacao(nome, barb.name, selSlot, selDate, svcs.map(s=>s.name).join(', '));
 
-  // Mostrar confirmação
+  // Mostrar confirma��o
   const dataFmt=new Date(selDate+'T12:00').toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
-  const PAY={pix:'📱 Pix',credito:'💳 Crédito',debito:'🏧 Débito',dinheiro:'💵 Dinheiro'};
+  const PAY={pix:'?? Pix',credito:'?? Cr�dito',debito:'?? D�bito',dinheiro:'?? Dinheiro'};
   document.getElementById('confirm-text').innerHTML=
     `<strong style="color:var(--text)">${nome}</strong>, seu agendamento foi confirmado!<br>
-     📅 ${dataFmt} às <strong style="color:var(--gold)">${selSlot}</strong><br>
-     💈 ${barb.name} · ✂️ ${svcs.map(s=>s.name).join(', ')}<br>
-     ${PAY[selPagamento]} · 💰 R$ ${total}`;
+     ?? ${dataFmt} �s <strong style="color:var(--gold)">${selSlot}</strong><br>
+     ?? ${barb.name} � ?? ${svcs.map(s=>s.name).join(', ')}<br>
+     ${PAY[selPagamento]} � ?? R$ ${total}`;
   document.getElementById('confirm-code').textContent=code;
 
   document.getElementById('main-wrap').style.display='none';
@@ -487,7 +515,7 @@ function agendar(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-// Notificação push
+// Notifica��o push
 function enviarNotificacao(cliente, barbeiro, horario, data, servicos){
   if(!('Notification' in window)) return;
   if(Notification.permission==='granted'){
@@ -497,14 +525,14 @@ function enviarNotificacao(cliente, barbeiro, horario, data, servicos){
 function dispararNotif(cliente, barbeiro, horario, data, servicos){
   const dataFmt=new Date(data+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'short'});
   try{
-    new Notification('💈 Novo agendamento!',{
-      body:`${cliente} agendou para ${dataFmt} às ${horario}\n✂️ ${servicos}`,
-      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💈</text></svg>'
+    new Notification('?? Novo agendamento!',{
+      body:`${cliente} agendou para ${dataFmt} �s ${horario}\n?? ${servicos}`,
+      icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">??</text></svg>'
     });
   }catch(e){}
 }
 
-// Cancelamento por código
+// Cancelamento por c�digo
 function showCancel(){
   document.getElementById('main-wrap').style.display='none';
   document.getElementById('confirm-screen').style.display='none';
@@ -518,19 +546,20 @@ function voltarInicio(){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function cancelarPorCodigo(){
+async function cancelarPorCodigo(){
   const code=document.getElementById('cancel-code-inp').value.trim().toUpperCase();
-  if(!code||code.length<4) return showToast('⚠️ Digite o código de cancelamento','#e05555');
+  if(!code||code.length<4) return showToast('?? Digite o c�digo de cancelamento','#e05555');
   const appts=getAppts();
   const idx=appts.findIndex(a=>a.code===code);
-  if(idx===-1) return showToast('❌ Código não encontrado. Verifique e tente novamente.','#e05555');
+  if(idx===-1) return showToast('? C�digo n�o encontrado. Verifique e tente novamente.','#e05555');
   const appt=appts[idx];
   const dataFmt=new Date(appt.date+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long'});
-  if(!confirm(`Cancelar agendamento de ${appt.name} em ${dataFmt} às ${appt.slot}?`)) return;
+  if(!confirm(`Cancelar agendamento de ${appt.name} em ${dataFmt} �s ${appt.slot}?`)) return;
+  const { error }=await db.from('appointments').delete().eq('id',appt.id);
+  if(error){ console.error(error); return showToast('? Erro ao cancelar. Tente de novo.','#e05555'); }
   appts.splice(idx,1);
-  localStorage.setItem('bk_appts',JSON.stringify(appts));
   document.getElementById('cancel-code-inp').value='';
-  showToast('✅ Agendamento cancelado com sucesso!');
+  showToast('? Agendamento cancelado com sucesso!');
   setTimeout(()=>voltarInicio(),1800);
 }
 
@@ -551,11 +580,13 @@ function novoAgendamento(){
 function fmtD(d){ return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0'); }
 function maskPhone(el){ let v=el.value.replace(/\D/g,''); if(v.length>11)v=v.slice(0,11); if(v.length>6)v=`(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`; else if(v.length>2)v=`(${v.slice(0,2)}) ${v.slice(2)}`; else if(v.length)v=`(${v}`; el.value=v; }
 function showToast(msg,color){ const t=document.getElementById('toast'); t.textContent=msg; t.style.background=color||'var(--success)'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200); }
-function shake(id,msg){ const el=document.getElementById(id); el.style.borderColor='var(--danger)'; setTimeout(()=>el.style.borderColor='',800); showToast('⚠️ '+msg,'#e05555'); }
+function shake(id,msg){ const el=document.getElementById(id); el.style.borderColor='var(--danger)'; setTimeout(()=>el.style.borderColor='',800); showToast('?? '+msg,'#e05555'); }
 
 // INIT
-applyNome();
-renderSvcs(); renderBrbs(); renderCal();
+loadAll().then(()=>{
+  applyNome();
+  renderSvcs(); renderBrbs(); renderCal();
+}).catch(e=>{ console.error(e); alert('Erro ao conectar no banco de dados. Recarregue a pagina (F5).'); });
 </script>
 </body>
 </html>
