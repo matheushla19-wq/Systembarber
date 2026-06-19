@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — BarberKing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;--border:#2a2a2a;--gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.12);--text:#f0ebe3;--muted:#7a7570;--danger:#e05555;--success:#4caf7d;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:500;min-height:100vh;}
+
+    /* LOGIN */
+    .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
+    .login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:360px;text-align:center;}
+    .login-logo{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);margin-bottom:0.2rem;}
+    .login-sub{color:var(--muted);font-size:0.85rem;margin-bottom:2rem;}
+    .login-box input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.85rem 1rem;border-radius:9px;font-family:'Sora',sans-serif;font-size:1rem;outline:none;margin-bottom:0.8rem;transition:border-color 0.2s;text-align:center;letter-spacing:0.12em;}
+    .login-box input:focus{border-color:var(--gold);}
+    .login-box input::placeholder{letter-spacing:0;color:var(--muted);}
+    .login-err{color:var(--danger);font-size:0.8rem;margin-top:-0.4rem;margin-bottom:0.6rem;display:none;}
+    .btn-login{width:100%;background:var(--gold);color:#000;border:none;padding:0.9rem;border-radius:9px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+    .btn-login:hover{background:var(--gold-light);}
+
+    #app{display:none;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.8rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,13,0.96);backdrop-filter:blur(10px);z-index:100;flex-wrap:wrap;gap:0.6rem;}
+    .logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--gold);}
+    .nav-right{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+    .tab{padding:0.48rem 1rem;border-radius:7px;font-size:0.82rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all 0.15s;font-family:'Sora',sans-serif;}
+    .tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+    .btn-sair{background:none;border:1px solid var(--border);color:var(--muted);padding:0.42rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+    .btn-sair:hover{border-color:var(--danger);color:var(--danger);}
+    .notif-btn{background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:0.42rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+    .notif-btn:hover{background:var(--gold);color:#000;}
+
+    .page{display:none;padding:1.8rem 1.5rem;max-width:1100px;margin:0 auto;}
+    .page.active{display:block;}
+
+    /* STATS */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.9rem;margin-bottom:1.8rem;}
+    @media(max-width:700px){.stats{grid-template-columns:1fr 1fr;}}
+    @media(max-width:400px){.stats{grid-template-columns:1fr;}}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.2rem;}
+    .stat-val{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--gold);}
+    .stat-label{font-size:0.75rem;color:var(--muted);margin-top:0.1rem;}
+
+    /* FILTROS */
+    .filters{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.3rem;align-items:center;}
+    .filters input,.filters select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.55rem 0.8rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.83rem;outline:none;transition:border-color 0.2s;}
+    .filters input:focus,.filters select:focus{border-color:var(--gold);}
+    .filters select option{background:var(--card);}
+    .btn-clear{background:none;border:1px solid var(--border);color:var(--muted);padding:0.55rem 0.9rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+    .btn-clear:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* AGENDAMENTOS */
+    .appt-list{display:flex;flex-direction:column;gap:0.65rem;}
+    .appt-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:0.95rem 1.1rem;display:flex;align-items:center;gap:0.9rem;animation:fadeIn 0.22s ease;flex-wrap:wrap;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+    .appt-date-b{min-width:44px;text-align:center;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:0.4rem;}
+    .appt-date-b .day{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold);line-height:1;}
+    .appt-date-b .mon{font-size:0.6rem;text-transform:uppercase;color:var(--muted);letter-spacing:0.08em;}
+    .appt-info{flex:1;min-width:160px;}
+    .appt-name{font-weight:600;font-size:0.88rem;margin-bottom:0.1rem;}
+    .appt-meta{font-size:0.74rem;color:var(--muted);}
+    .appt-actions{display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;}
+    .badge{font-size:0.68rem;padding:0.16rem 0.5rem;border-radius:100px;font-weight:600;background:rgba(76,175,125,0.13);color:var(--success);border:1px solid rgba(76,175,125,0.22);}
+    .appt-total{font-size:0.82rem;font-weight:700;color:var(--gold);}
+    .appt-btns{display:flex;gap:0.4rem;}
+    .btn-del{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.26rem 0.48rem;cursor:pointer;font-size:0.78rem;transition:all 0.13s;}
+    .btn-del:hover{border-color:var(--danger);color:var(--danger);}
+    .btn-wpp{background:none;border:1px solid rgba(37,211,102,0.4);color:#25d366;border-radius:6px;padding:0.26rem 0.55rem;cursor:pointer;font-size:0.78rem;transition:all 0.13s;text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem;}
+    .btn-wpp:hover{background:rgba(37,211,102,0.1);}
+    .pay-badge{font-size:0.7rem;color:var(--muted);}
+    .empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:0.9rem;grid-column:1/-1;}
+    .empty div{font-size:2.5rem;margin-bottom:0.5rem;}
+
+    /* CONFIG */
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;}
+    @media(max-width:680px){.settings-grid{grid-template-columns:1fr;}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+    .card-full{grid-column:1/-1;}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.45rem;}
+    .ico{width:27px;height:27px;background:var(--gold-dim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;}
+    .section-label{font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.45rem;}
+
+    .svc-row{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);}
+    .svc-row:last-child{border-bottom:none;}
+    .svc-n{flex:1;font-size:0.85rem;}
+    .price-inp{width:75px;background:var(--surface);border:1px solid var(--border);color:var(--gold);padding:0.32rem 0.45rem;border-radius:6px;font-family:'Sora',sans-serif;font-size:0.83rem;font-weight:600;outline:none;text-align:center;}
+    .price-inp:focus{border-color:var(--gold);}
+    .btn-icon{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.26rem 0.45rem;cursor:pointer;font-size:0.78rem;transition:all 0.13s;}
+    .btn-icon:hover{border-color:var(--danger);color:var(--danger);}
+
+    .brb-row{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);}
+    .brb-row:last-child{border-bottom:none;}
+    .brb-emoji{font-size:1.2rem;width:28px;text-align:center;}
+    .brb-n{flex:1;font-size:0.85rem;font-weight:500;}
+
+    .add-row{display:flex;gap:0.45rem;margin-top:0.9rem;flex-wrap:wrap;}
+    .add-row input{flex:1;min-width:80px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.55rem 0.75rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.83rem;outline:none;transition:border-color 0.2s;}
+    .add-row input:focus{border-color:var(--gold);}
+    .add-row input::placeholder{color:var(--muted);}
+    .btn-add{background:var(--gold);color:#000;border:none;padding:0.55rem 0.9rem;border-radius:7px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;font-size:0.8rem;white-space:nowrap;transition:all 0.15s;}
+    .btn-add:hover{background:var(--gold-light);}
+    .btn-save{width:100%;background:var(--gold);color:#000;border:none;padding:0.75rem;border-radius:8px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;font-size:0.88rem;margin-top:0.9rem;transition:all 0.15s;}
+    .btn-save:hover{background:var(--gold-light);}
+
+    .pw-row{display:flex;gap:0.5rem;margin-top:0.7rem;}
+    .pw-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.62rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+    .pw-row input:focus{border-color:var(--gold);}
+
+    /* HORÁRIOS */
+    .horario-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.7rem;}
+    @media(max-width:400px){.horario-grid{grid-template-columns:1fr;}}
+    .horario-group label{display:block;font-size:0.7rem;font-weight:500;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;}
+    .horario-group input, .horario-group select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.62rem 0.75rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;}
+    .horario-group input:focus,.horario-group select:focus{border-color:var(--gold);}
+
+    /* NOME */
+    .nome-row{display:flex;gap:0.5rem;margin-top:0.5rem;}
+    .nome-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.7rem 0.9rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
+    .nome-row input:focus{border-color:var(--gold);}
+
+    hr{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+
+    .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--success);color:#fff;padding:0.8rem 1.3rem;border-radius:10px;font-weight:600;font-size:0.85rem;box-shadow:0 8px 30px rgba(0,0,0,0.4);opacity:0;transform:translateY(12px);transition:all 0.3s;z-index:999;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateY(0);}
+
+    @media(max-width:500px){.appt-card{flex-direction:column;align-items:flex-start;}.appt-actions{align-items:flex-start;}}
+
+    /* ===== COMPUTADOR (telas grandes) ===== */
+    @media(min-width:1024px){
+      .page{max-width:1240px;padding:2.4rem 2rem;}
+      .appt-list{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;align-items:start;}
+      .stats{gap:1.1rem;}
+    }
+    @media(min-width:1500px){
+      .page{max-width:1380px;}
+      .appt-list{grid-template-columns:1fr 1fr 1fr;}
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo logo-nome">BarberKing</div>
+    <div class="login-sub">Painel do Dono ??</div>
+    <input type="password" id="pw-input" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav>
+    <div class="logo logo-nome">BarberKing</div>
+    <div class="nav-right">
+      <span style="font-size:0.8rem;color:var(--gold);font-weight:600;">?? Dono</span>
+      <button class="notif-btn" id="notif-btn" onclick="ativarNotificacoes()">?? Ativar alertas</button>
+      <button class="tab active" id="tab-agenda" onclick="showPage('agenda')">?? Agenda</button>
+      <button class="tab" id="tab-config" onclick="showPage('config')">?? Config</button>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- AGENDA -->
+  <div class="page active" id="page-agenda">
+    <div class="stats" id="stats"></div>
+    <div class="filters">
+      <input type="date" id="f-date" onchange="renderAgenda()"/>
+      <select id="f-barber" onchange="renderAgenda()"><option value="">Todos os barbeiros</option></select>
+      <input type="text" id="f-search" placeholder="?? Buscar cliente..." oninput="renderAgenda()" style="min-width:160px"/>
+      <button class="btn-clear" onclick="clearFilters()">? Limpar</button>
+    </div>
+    <div class="appt-list" id="appt-list"></div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="page" id="page-config">
+
+    <!-- NOME DA BARBEARIA — full width -->
+    <div style="margin-bottom:1.3rem">
+      <div class="card">
+        <div class="card-title"><span class="ico">??</span> Nome da Barbearia</div>
+        <p class="section-label">Aparece no topo do site e do painel</p>
+        <div class="nome-row">
+          <input id="inp-nome-barbearia" placeholder="Ex: Barbearia do Vinícius"/>
+          <button class="btn-add" onclick="saveNome()">?? Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+
+      <!-- SERVIÇOS -->
+      <div class="card">
+        <div class="card-title"><span class="ico">??</span> Serviços & Preços</div>
+        <div id="svc-list"></div>
+        <button class="btn-save" onclick="saveServicePrices()">?? Salvar preços</button>
+        <hr/>
+        <p class="section-label">Adicionar serviço</p>
+        <div class="add-row">
+          <input id="new-svc-name" placeholder="Nome"/>
+          <input id="new-svc-price" placeholder="R$" type="number" style="width:65px;min-width:65px"/>
+          <input id="new-svc-time" placeholder="min" type="number" style="width:58px;min-width:58px"/>
+          <button class="btn-add" onclick="addService()">+</button>
+        </div>
+      </div>
+
+      <!-- BARBEIROS + SENHAS -->
+      <div class="card">
+        <div class="card-title"><span class="ico">??</span> Barbeiros & acessos</div>
+        <p class="section-label" style="margin-bottom:0.8rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Cada barbeiro entra no painel dele (admin) com a própria senha. Aqui você vê e altera a senha de cada um.</p>
+        <div id="brb-list"></div>
+        <hr/>
+        <p class="section-label">? Adicionar barbeiro (cria o acesso dele)</p>
+        <div class="add-row">
+          <input id="new-brb-name" placeholder="Nome do barbeiro"/>
+          <input id="new-brb-emoji" placeholder="??" style="width:55px;min-width:55px;text-align:center"/>
+        </div>
+        <div class="add-row">
+          <input id="new-brb-pw" placeholder="Senha de acesso do barbeiro"/>
+          <button class="btn-add" onclick="addBarber()">+ Criar</button>
+        </div>
+      </div>
+
+      <!-- SENHA DO DONO -->
+      <div class="card">
+        <div class="card-title"><span class="ico">??</span> Senha do dono</div>
+        <p class="section-label" style="margin-bottom:0.8rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Esta é a senha que abre este painel do dono.</p>
+        <div class="pw-row">
+          <input type="password" id="owner-pw" placeholder="Nova senha do dono (mín. 4 caracteres)" onkeydown="if(event.key==='Enter')changeOwnerPassword()"/>
+          <button class="btn-add" onclick="changeOwnerPassword()">Salvar</button>
+        </div>
+      </div>
+
+      <!-- DIAS DE FOLGA — full width -->
+      <div class="card card-full">
+        <div class="card-title"><span class="ico">???</span> Dias de Folga da Barbearia</div>
+        <p class="section-label" style="margin-bottom:1rem">Bloqueiam o calendário para <b>todos os barbeiros</b> (ex: feriados, barbearia fechada). Cada barbeiro também marca as folgas pessoais dele no próprio painel.</p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+          <input type="date" id="folga-inp" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.58rem 0.8rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;"/>
+          <button class="btn-add" onclick="addFolga()">+ Adicionar folga</button>
+        </div>
+        <div id="folgas-list" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
+      </div>
+
+      <!-- FOLGAS DOS BARBEIROS — full width -->
+      <div class="card card-full">
+        <div class="card-title"><span class="ico">??</span> Folgas dos Barbeiros</div>
+        <p class="section-label" style="margin-bottom:1rem">Folgas pessoais que cada barbeiro marcou no painel dele. Você pode remover se precisar.</p>
+        <div id="folgas-brb-list" style="display:flex;flex-direction:column;gap:0.9rem;"></div>
+      </div>
+
+      <!-- HORÁRIO DE FUNCIONAMENTO — full width -->
+      <div class="card card-full">
+        <div class="card-title"><span class="ico">??</span> Horário de Funcionamento</div>
+        <p class="section-label" style="margin-bottom:1rem">Define quais horários aparecem para os clientes agendarem</p>
+        <div class="horario-grid">
+          <div class="horario-group">
+            <label>Abertura</label>
+            <input type="time" id="hora-inicio" value="08:00"/>
+          </div>
+          <div class="horario-group">
+            <label>Fechamento</label>
+            <input type="time" id="hora-fim" value="18:30"/>
+          </div>
+          <div class="horario-group">
+            <label>Intervalo</label>
+            <select id="hora-intervalo">
+              <option value="15">15 minutos</option>
+              <option value="30" selected>30 minutos</option>
+              <option value="45">45 minutos</option>
+              <option value="60">1 hora</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-save" style="max-width:280px;margin-top:1rem" onclick="saveHorario()">?? Salvar horário</button>
+        <div id="horario-preview" style="margin-top:0.8rem;font-size:0.78rem;color:var(--muted);"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE (banco de dados na nuvem)
+// ============================================================
+// >>> COLE AQUI A SUA PROJECT URL E A SUA PUBLISHABLE KEY <<<
+const { createClient } = supabase;
+const db = createClient('SUA_PROJECT_URL', 'SUA_PUBLISHABLE_KEY');
+
+// Cache em memoria: carregado 1x quando a pagina abre.
+const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
+
+async function loadAll(){
+  const [ap, br, sv, fo, fb, cf] = await Promise.all([
+    db.from('appointments').select('*'),
+    db.from('barbers').select('*'),
+    db.from('services').select('*'),
+    db.from('folgas').select('*'),
+    db.from('folgas_barbeiro').select('*'),
+    db.from('config').select('*')
+  ]);
+  DB.appts = (ap.data||[]).map(r=>({
+    id:r.id, code:r.code, name:r.name, tel:r.tel,
+    services:r.services||[], serviceIds:r.service_ids||[],
+    barber:r.barber, barberId:r.barber_id,
+    date:r.date, slot:r.slot, total:r.total,
+    pagamento:r.pagamento, createdAt:r.created_at
+  }));
+  DB.barbers  = br.data||[];
+  DB.services = sv.data||[];
+  DB.folgas   = (fo.data||[]).map(r=>r.date);
+  DB.folgasBrb = {};
+  (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
+  DB.config = {};
+  (cf.data||[]).forEach(r=>{ DB.config[r.key] = r.value; });
+}
+
+// ============================================================
+// DADOS
+// ============================================================
+function getServices(){return DB.services;}
+function getBarbers(){return DB.barbers;}
+function getAppts(){return DB.appts;}
+function getOwnerPw(){return DB.config.owner_pw||'dono123';}
+function getNome(){return DB.config.nome||'BarberKing';}
+
+// Garante que todo barbeiro tenha uma senha (compatibilidade com dados antigos)
+function migrateBarbers(){ /* nao e mais necessario com o banco de dados */ }
+
+function getSlots(){
+  const cfg=DB.config.horario||null;
+  if(!cfg) return ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30'];
+  const slots=[];
+  let [h,m]=cfg.inicio.split(':').map(Number);
+  const [eh,em]=cfg.fim.split(':').map(Number);
+  const inter=parseInt(cfg.intervalo)||30;
+  while(h<eh||(h===eh&&m<em)){
+    slots.push(h.toString().padStart(2,'0')+':'+m.toString().padStart(2,'0'));
+    m+=inter; if(m>=60){h+=Math.floor(m/60);m=m%60;}
+  }
+  return slots;
+}
+
+// ============================================================
+// LOGIN (senha do dono)
+// ============================================================
+async function doLogin(){
+  await ready;
+  if(document.getElementById('pw-input').value===getOwnerPw()){
+    document.getElementById('login-wrap').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+function sair(){
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-wrap').style.display='flex';
+  document.getElementById('pw-input').value='';
+  document.getElementById('login-err').style.display='none';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initApp(){
+  migrateBarbers();
+  applyLogos();
+  renderStats();
+  renderAgenda();
+  renderBarberFilter();
+  renderServicesList();
+  renderBarbersList();
+  renderFolgas();
+  renderFolgasBarbeiros();
+  loadHorarioConfig();
+  checkNotifStatus();
+  document.getElementById('inp-nome-barbearia').value=getNome();
+}
+function applyLogos(){
+  const n=getNome();
+  document.querySelectorAll('.logo-nome').forEach(el=>el.textContent=n);
+  document.title='Dono — '+n;
+}
+
+// ============================================================
+// NOTIFICAÇÕES
+// ============================================================
+function checkNotifStatus(){
+  const btn=document.getElementById('notif-btn');
+  if(!('Notification' in window)){btn.style.display='none';return;}
+  if(Notification.permission==='granted'){
+    btn.textContent='?? Alertas ativos'; btn.style.background='rgba(76,175,125,0.15)';
+    btn.style.color='var(--success)'; btn.style.borderColor='rgba(76,175,125,0.3)';
+    btn.style.cursor='default';
+  } else {
+    btn.textContent='?? Ativar alertas';
+  }
+}
+function ativarNotificacoes(){
+  if(!('Notification' in window)) return toast('?? Seu navegador não suporta notificações','#e05555');
+  if(Notification.permission==='granted'){toast('? Alertas já estão ativos!');return;}
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){
+      checkNotifStatus();
+      toast('? Alertas ativados!');
+      new Notification('?? '+getNome(), {body:'Alertas ativados com sucesso!'});
+    } else {
+      toast('?? Permissão negada. Ative nas configurações do navegador.','#e05555');
+    }
+  });
+}
+
+// ============================================================
+// STATS (todos os barbeiros)
+// ============================================================
+function renderStats(){
+  const appts=getAppts(), today=fmtD(new Date());
+  const todayA=appts.filter(a=>a.date===today);
+  const totalR=appts.reduce((s,a)=>s+(a.total||0),0);
+  const todayR=todayA.reduce((s,a)=>s+(a.total||0),0);
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="stat-val">${appts.length}</div><div class="stat-label">Total de agendamentos</div></div>
+    <div class="stat"><div class="stat-val">${todayA.length}</div><div class="stat-label">Agendamentos hoje</div></div>
+    <div class="stat"><div class="stat-val">R$ ${todayR}</div><div class="stat-label">Receita hoje</div></div>
+    <div class="stat"><div class="stat-val">R$ ${totalR}</div><div class="stat-label">Receita total</div></div>`;
+}
+
+// ============================================================
+// AGENDA (todos, com filtro por barbeiro)
+// ============================================================
+const PAY_LABEL={pix:'?? Pix',credito:'?? Crédito',debito:'?? Débito',dinheiro:'?? Dinheiro'};
+
+function renderBarberFilter(){
+  const sel=document.getElementById('f-barber'), cur=sel.value;
+  sel.innerHTML='<option value="">Todos os barbeiros</option>'+
+    getBarbers().map(b=>`<option value="${b.id}" ${cur===b.id?'selected':''}>${b.name}</option>`).join('');
+}
+
+function renderAgenda(){
+  const appts=getAppts();
+  const fDate=document.getElementById('f-date').value;
+  const fBarb=document.getElementById('f-barber').value;
+  const fSearch=document.getElementById('f-search').value.toLowerCase();
+  let filtered=[...appts];
+  if(fDate)   filtered=filtered.filter(a=>a.date===fDate);
+  if(fBarb)   filtered=filtered.filter(a=>a.barberId===fBarb);
+  if(fSearch) filtered=filtered.filter(a=>a.name.toLowerCase().includes(fSearch)||a.tel.includes(fSearch));
+  filtered.sort((a,b)=>{ if(a.date!==b.date)return a.date>b.date?1:-1; return a.slot>b.slot?1:-1; });
+
+  const list=document.getElementById('appt-list');
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty"><div>??</div>Nenhum agendamento encontrado.</div>`;
+    return;
+  }
+  list.innerHTML=filtered.map(a=>{
+    const d=new Date(a.date+'T12:00');
+    const day=d.getDate().toString().padStart(2,'0');
+    const mon=d.toLocaleDateString('pt-BR',{month:'short'});
+    const svcs=a.services.join(', ');
+    const telLimpo=a.tel.replace(/\D/g,'');
+    const msg=encodeURIComponent(`Olá ${a.name}! Confirmando seu agendamento na ${getNome()} para ${d.toLocaleDateString('pt-BR')} às ${a.slot}. ?? ${svcs}. Qualquer dúvida, estamos à disposição!`);
+    const wppUrl=`https://wa.me/55${telLimpo}?text=${msg}`;
+    return `
+      <div class="appt-card" id="appt-${a.id}">
+        <div class="appt-date-b"><div class="day">${day}</div><div class="mon">${mon}</div></div>
+        <div class="appt-info">
+          <div class="appt-name">${a.name}</div>
+          <div class="appt-meta">?? ${a.slot} · ?? ${a.barber} · ?? ${svcs}</div>
+          <div class="appt-meta">?? ${a.tel} · ${PAY_LABEL[a.pagamento]||'—'}</div>
+        </div>
+        <div class="appt-actions">
+          <span class="badge">Confirmado</span>
+          <span class="appt-total">R$ ${a.total||0}</span>
+          <div class="appt-btns">
+            <a class="btn-wpp" href="${wppUrl}" target="_blank">?? WhatsApp</a>
+            <button class="btn-del" onclick="delAppt('${a.id}')">?</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function delAppt(id){
+  if(!confirm('Cancelar este agendamento?')) return;
+  const { error }=await db.from('appointments').delete().eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao cancelar','#e05555'); }
+  DB.appts=DB.appts.filter(a=>a.id!==id);
+  renderStats(); renderAgenda(); toast('??? Agendamento cancelado','#888');
+}
+function clearFilters(){
+  document.getElementById('f-date').value='';
+  document.getElementById('f-barber').value='';
+  document.getElementById('f-search').value='';
+  renderAgenda();
+}
+
+// ============================================================
+// CONFIG: NOME DA BARBEARIA
+// ============================================================
+async function saveNome(){
+  const n=document.getElementById('inp-nome-barbearia').value.trim();
+  if(!n) return toast('?? Digite o nome','#e05555');
+  const { error }=await db.from('config').upsert({key:'nome',value:n});
+  if(error){ console.error(error); return toast('? Erro ao salvar o nome','#e05555'); }
+  DB.config.nome=n;
+  applyLogos();
+  toast('? Nome salvo! Atualize os outros sites com F5.');
+}
+
+// ============================================================
+// CONFIG: SERVIÇOS
+// ============================================================
+function renderServicesList(){
+  document.getElementById('svc-list').innerHTML=getServices().map(s=>`
+    <div class="svc-row" id="srow-${s.id}">
+      <span class="svc-n">${s.name}</span>
+      <input class="price-inp" type="number" value="${s.price}" id="price-${s.id}" min="0"/>
+      <button class="btn-icon" onclick="removeService('${s.id}')">?</button>
+    </div>`).join('');
+}
+async function saveServicePrices(){
+  const svcs=getServices();
+  svcs.forEach(s=>{ const i=document.getElementById('price-'+s.id); if(i) s.price=parseInt(i.value)||s.price; });
+  const { error }=await db.from('services').upsert(svcs);
+  if(error){ console.error(error); return toast('? Erro ao salvar os preços','#e05555'); }
+  toast('? Preços atualizados!');
+}
+async function removeService(id){
+  if(!confirm('Remover este serviço?')) return;
+  const { error }=await db.from('services').delete().eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  DB.services=DB.services.filter(s=>s.id!==id);
+  renderServicesList(); toast('??? Serviço removido','#888');
+}
+async function addService(){
+  const name=document.getElementById('new-svc-name').value.trim();
+  const price=parseInt(document.getElementById('new-svc-price').value)||0;
+  const time=parseInt(document.getElementById('new-svc-time').value)||30;
+  if(!name) return toast('?? Digite o nome do serviço','#e05555');
+  const novo={id:'svc_'+Date.now(),name,price,time};
+  const { error }=await db.from('services').insert(novo);
+  if(error){ console.error(error); return toast('? Erro ao adicionar','#e05555'); }
+  DB.services.push(novo);
+  document.getElementById('new-svc-name').value='';
+  document.getElementById('new-svc-price').value='';
+  document.getElementById('new-svc-time').value='';
+  renderServicesList(); toast('? Serviço adicionado!');
+}
+
+// ============================================================
+// CONFIG: BARBEIROS & SENHAS
+// ============================================================
+function renderBarbersList(){
+  document.getElementById('brb-list').innerHTML=getBarbers().map(b=>`
+    <div class="brb-row" style="flex-wrap:wrap;gap:0.4rem;">
+      <span class="brb-emoji">${b.emoji}</span>
+      <span class="brb-n">${b.name}</span>
+      <input class="price-inp" style="width:130px;color:var(--text);text-align:left;letter-spacing:0.04em;font-weight:500;" type="text" value="${b.pw||''}" id="bpw-${b.id}" placeholder="senha"/>
+      <button class="btn-icon" style="border-color:rgba(201,168,76,0.4);color:var(--gold);" onclick="saveBarberPw('${b.id}')" title="Salvar senha">??</button>
+      <button class="btn-icon" onclick="removeBarber('${b.id}')" title="Remover barbeiro">?</button>
+    </div>`).join('');
+}
+async function saveBarberPw(id){
+  const pw=document.getElementById('bpw-'+id).value.trim();
+  if(!pw||pw.length<4) return toast('?? Senha muito curta (mín. 4 caracteres)','#e05555');
+  const barbers=getBarbers();
+  if(barbers.some(b=>b.id!==id && b.pw===pw)) return toast('?? Essa senha já está em uso por outro barbeiro','#e05555');
+  const b=barbers.find(x=>x.id===id); if(!b) return;
+  const { error }=await db.from('barbers').update({pw}).eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao salvar a senha','#e05555'); }
+  b.pw=pw;
+  toast('? Senha de '+b.name+' atualizada!');
+}
+async function removeBarber(id){
+  const barbers=getBarbers();
+  if(barbers.length<=1) return toast('?? Precisa ter pelo menos 1 barbeiro','#e05555');
+  if(!confirm('Remover este barbeiro? O acesso (painel) dele deixará de funcionar.')) return;
+  const { error }=await db.from('barbers').delete().eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  await db.from('folgas_barbeiro').delete().eq('barber_id',id);
+  DB.barbers=DB.barbers.filter(b=>b.id!==id);
+  delete DB.folgasBrb[id];
+  renderBarbersList(); renderBarberFilter();
+  if(document.getElementById('folgas-brb-list')) renderFolgasBarbeiros();
+  toast('??? Barbeiro removido','#888');
+}
+async function addBarber(){
+  const name=document.getElementById('new-brb-name').value.trim();
+  const emoji=document.getElementById('new-brb-emoji').value.trim()||'??';
+  const pw=document.getElementById('new-brb-pw').value.trim();
+  if(!name) return toast('?? Digite o nome do barbeiro','#e05555');
+  if(!pw||pw.length<4) return toast('?? Defina uma senha de acesso (mín. 4 caracteres)','#e05555');
+  const barbers=getBarbers();
+  if(barbers.some(b=>b.pw===pw)) return toast('?? Essa senha já está em uso por outro barbeiro','#e05555');
+  const novo={id:'brb_'+Date.now(),name,emoji,pw};
+  const { error }=await db.from('barbers').insert(novo);
+  if(error){ console.error(error); return toast('? Erro ao criar barbeiro','#e05555'); }
+  barbers.push(novo);
+  document.getElementById('new-brb-name').value='';
+  document.getElementById('new-brb-emoji').value='';
+  document.getElementById('new-brb-pw').value='';
+  renderBarbersList(); renderBarberFilter();
+  toast('? Barbeiro criado! Ele já entra no painel (admin) com essa senha.');
+}
+
+// ============================================================
+// CONFIG: SENHA DO DONO
+// ============================================================
+async function changeOwnerPassword(){
+  const pw=document.getElementById('owner-pw').value.trim();
+  if(!pw||pw.length<4) return toast('?? Senha muito curta (mín. 4 caracteres)','#e05555');
+  const { error }=await db.from('config').upsert({key:'owner_pw',value:pw});
+  if(error){ console.error(error); return toast('? Erro ao salvar a senha','#e05555'); }
+  DB.config.owner_pw=pw;
+  document.getElementById('owner-pw').value='';
+  toast('? Senha do dono alterada!');
+}
+
+// ============================================================
+// CONFIG: FOLGAS
+// ============================================================
+function getFolgas(){ return DB.folgas; }
+function renderFolgas(){
+  const folgas=getFolgas().sort();
+  const el=document.getElementById('folgas-list');
+  if(!folgas.length){
+    el.innerHTML=`<span style="color:var(--muted);font-size:0.82rem;">Nenhum dia de folga cadastrado.</span>`;
+    return;
+  }
+  el.innerHTML=folgas.map(d=>{
+    const fmt=new Date(d+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    return `<div style="display:flex;align-items:center;gap:0.4rem;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.25);border-radius:8px;padding:0.35rem 0.7rem;font-size:0.8rem;">
+      <span>??? ${fmt}</span>
+      <button onclick="removeFolga('${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">?</button>
+    </div>`;
+  }).join('');
+}
+async function addFolga(){
+  const d=document.getElementById('folga-inp').value;
+  if(!d) return toast('?? Selecione uma data','#e05555');
+  const folgas=getFolgas();
+  if(folgas.includes(d)) return toast('?? Essa data já está marcada como folga','#e05555');
+  const { error }=await db.from('folgas').insert({date:d});
+  if(error){ console.error(error); return toast('? Erro ao salvar a folga','#e05555'); }
+  DB.folgas.push(d);
+  document.getElementById('folga-inp').value='';
+  renderFolgas();
+  toast('? Folga adicionada!');
+}
+async function removeFolga(d){
+  const { error }=await db.from('folgas').delete().eq('date',d);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  DB.folgas=DB.folgas.filter(f=>f!==d);
+  renderFolgas();
+  toast('??? Folga removida','#888');
+}
+
+// ---- Visão das folgas pessoais dos barbeiros ----
+function getFolgasBrbMap(){ return DB.folgasBrb; }
+function renderFolgasBarbeiros(){
+  const map=getFolgasBrbMap();
+  const barbers=getBarbers();
+  const el=document.getElementById('folgas-brb-list');
+  el.innerHTML=barbers.map(b=>{
+    const folgas=(map[b.id]||[]).slice().sort();
+    const chips=folgas.length?folgas.map(d=>{
+      const fmt=new Date(d+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
+      return `<div style="display:flex;align-items:center;gap:0.4rem;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.25);border-radius:8px;padding:0.35rem 0.7rem;font-size:0.8rem;">
+        <span>??? ${fmt}</span>
+        <button onclick="removeFolgaBarbeiro('${b.id}','${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">?</button>
+      </div>`;
+    }).join(''):`<span style="color:var(--muted);font-size:0.8rem;">Nenhuma folga marcada.</span>`;
+    return `<div>
+      <div style="font-size:0.85rem;font-weight:600;margin-bottom:0.45rem;">${b.emoji} ${b.name}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">${chips}</div>
+    </div>`;
+  }).join('');
+}
+async function removeFolgaBarbeiro(barberId,d){
+  const { error }=await db.from('folgas_barbeiro').delete().eq('barber_id',barberId).eq('date',d);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  const map=getFolgasBrbMap();
+  if(map[barberId]){
+    map[barberId]=map[barberId].filter(x=>x!==d);
+    if(!map[barberId].length) delete map[barberId];
+  }
+  renderFolgasBarbeiros();
+  toast('??? Folga removida','#888');
+}
+
+// ============================================================
+// CONFIG: HORÁRIO
+// ============================================================
+function loadHorarioConfig(){
+  const cfg=DB.config.horario||null;
+  if(cfg){
+    document.getElementById('hora-inicio').value=cfg.inicio||'08:00';
+    document.getElementById('hora-fim').value=cfg.fim||'18:30';
+    document.getElementById('hora-intervalo').value=cfg.intervalo||'30';
+  }
+  updateHorarioPreview();
+}
+async function saveHorario(){
+  const inicio=document.getElementById('hora-inicio').value;
+  const fim=document.getElementById('hora-fim').value;
+  const intervalo=document.getElementById('hora-intervalo').value;
+  if(!inicio||!fim) return toast('?? Preencha os horários','#e05555');
+  if(inicio>=fim) return toast('?? Abertura deve ser antes do fechamento','#e05555');
+  const { error }=await db.from('config').upsert({key:'horario',value:{inicio,fim,intervalo}});
+  if(error){ console.error(error); return toast('? Erro ao salvar o horário','#e05555'); }
+  DB.config.horario={inicio,fim,intervalo};
+  updateHorarioPreview();
+  toast('? Horário salvo! Atualize o site do cliente com F5.');
+}
+function updateHorarioPreview(){
+  const slots=getSlots();
+  const el=document.getElementById('horario-preview');
+  if(slots.length) el.textContent=`${slots.length} horários disponíveis: ${slots.slice(0,4).join(', ')}${slots.length>4?' ...':''} até ${slots[slots.length-1]}`;
+}
+document.getElementById('hora-inicio')?.addEventListener('change',updateHorarioPreview);
+document.getElementById('hora-fim')?.addEventListener('change',updateHorarioPreview);
+document.getElementById('hora-intervalo')?.addEventListener('change',updateHorarioPreview);
+
+// ============================================================
+// PÁGINAS
+// ============================================================
+function showPage(p){
+  ['agenda','config'].forEach(id=>{
+    document.getElementById('page-'+id).classList.toggle('active',id===p);
+    document.getElementById('tab-'+id).classList.toggle('active',id===p);
+  });
+  if(p==='config'){
+    renderServicesList(); renderBarbersList(); renderFolgas(); renderFolgasBarbeiros();
+    document.getElementById('inp-nome-barbearia').value=getNome();
+    loadHorarioConfig();
+  }
+  if(p==='agenda'){ renderStats(); renderAgenda(); renderBarberFilter(); }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function fmtD(d){return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
+function toast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--success)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// Carrega os dados do banco assim que a pagina abre
+const ready = loadAll();
+</script>
+</body>
+</html>

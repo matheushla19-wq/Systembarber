@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — BarberKing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;--border:#2a2a2a;--gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.12);--text:#f0ebe3;--muted:#7a7570;--danger:#e05555;--success:#4caf7d;}
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;font-weight:500;min-height:100vh;}
+
+    /* LOGIN */
+    .login-wrap{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem;}
+    .login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;width:100%;max-width:360px;text-align:center;}
+    .login-logo{font-family:'Playfair Display',serif;font-size:2rem;font-weight:900;color:var(--gold);margin-bottom:0.2rem;}
+    .login-sub{color:var(--muted);font-size:0.85rem;margin-bottom:2rem;}
+    .login-box input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.85rem 1rem;border-radius:9px;font-family:'Sora',sans-serif;font-size:1rem;outline:none;margin-bottom:0.8rem;transition:border-color 0.2s;text-align:center;letter-spacing:0.12em;}
+    .login-box input:focus{border-color:var(--gold);}
+    .login-box input::placeholder{letter-spacing:0;color:var(--muted);}
+    .login-err{color:var(--danger);font-size:0.8rem;margin-top:-0.4rem;margin-bottom:0.6rem;display:none;}
+    .btn-login{width:100%;background:var(--gold);color:#000;border:none;padding:0.9rem;border-radius:9px;font-family:'Sora',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:all 0.2s;}
+    .btn-login:hover{background:var(--gold-light);}
+
+    #app{display:none;}
+
+    nav{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.8rem;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(13,13,13,0.96);backdrop-filter:blur(10px);z-index:100;flex-wrap:wrap;gap:0.6rem;}
+    .logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--gold);}
+    .nav-right{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+    .tab{padding:0.48rem 1rem;border-radius:7px;font-size:0.82rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:none;color:var(--muted);transition:all 0.15s;font-family:'Sora',sans-serif;}
+    .tab.active{background:var(--gold-dim);border-color:var(--gold);color:var(--gold);}
+    .btn-sair{background:none;border:1px solid var(--border);color:var(--muted);padding:0.42rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+    .btn-sair:hover{border-color:var(--danger);color:var(--danger);}
+    .notif-btn{background:var(--gold-dim);border:1px solid rgba(201,168,76,0.3);color:var(--gold);padding:0.42rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+    .notif-btn:hover{background:var(--gold);color:#000;}
+
+    .page{display:none;padding:1.8rem 1.5rem;max-width:1100px;margin:0 auto;}
+    .page.active{display:block;}
+
+    /* STATS */
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0.9rem;margin-bottom:1.8rem;}
+    @media(max-width:700px){.stats{grid-template-columns:1fr 1fr;}}
+    @media(max-width:400px){.stats{grid-template-columns:1fr;}}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.2rem;}
+    .stat-val{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;color:var(--gold);}
+    .stat-label{font-size:0.75rem;color:var(--muted);margin-top:0.1rem;}
+
+    /* FILTROS */
+    .filters{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.3rem;align-items:center;}
+    .filters input,.filters select{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.55rem 0.8rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.83rem;outline:none;transition:border-color 0.2s;}
+    .filters input:focus,.filters select:focus{border-color:var(--gold);}
+    .filters select option{background:var(--card);}
+    .btn-clear{background:none;border:1px solid var(--border);color:var(--muted);padding:0.55rem 0.9rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.8rem;cursor:pointer;transition:all 0.15s;}
+    .btn-clear:hover{border-color:var(--gold);color:var(--gold);}
+
+    /* AGENDAMENTOS */
+    .appt-list{display:flex;flex-direction:column;gap:0.65rem;}
+    .appt-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:0.95rem 1.1rem;display:flex;align-items:center;gap:0.9rem;animation:fadeIn 0.22s ease;flex-wrap:wrap;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+    .appt-date-b{min-width:44px;text-align:center;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.2);border-radius:8px;padding:0.4rem;}
+    .appt-date-b .day{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--gold);line-height:1;}
+    .appt-date-b .mon{font-size:0.6rem;text-transform:uppercase;color:var(--muted);letter-spacing:0.08em;}
+    .appt-info{flex:1;min-width:160px;}
+    .appt-name{font-weight:600;font-size:0.88rem;margin-bottom:0.1rem;}
+    .appt-meta{font-size:0.74rem;color:var(--muted);}
+    .appt-actions{display:flex;flex-direction:column;align-items:flex-end;gap:0.35rem;}
+    .badge{font-size:0.68rem;padding:0.16rem 0.5rem;border-radius:100px;font-weight:600;background:rgba(76,175,125,0.13);color:var(--success);border:1px solid rgba(76,175,125,0.22);}
+    .appt-total{font-size:0.82rem;font-weight:700;color:var(--gold);}
+    .appt-btns{display:flex;gap:0.4rem;}
+    .btn-del{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.26rem 0.48rem;cursor:pointer;font-size:0.78rem;transition:all 0.13s;}
+    .btn-del:hover{border-color:var(--danger);color:var(--danger);}
+    .btn-wpp{background:none;border:1px solid rgba(37,211,102,0.4);color:#25d366;border-radius:6px;padding:0.26rem 0.55rem;cursor:pointer;font-size:0.78rem;transition:all 0.13s;text-decoration:none;display:inline-flex;align-items:center;gap:0.25rem;}
+    .btn-wpp:hover{background:rgba(37,211,102,0.1);}
+    .pay-badge{font-size:0.7rem;color:var(--muted);}
+    .empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:0.9rem;grid-column:1/-1;}
+    .empty div{font-size:2.5rem;margin-bottom:0.5rem;}
+
+    /* CONFIG */
+    .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.3rem;}
+    @media(max-width:680px){.settings-grid{grid-template-columns:1fr;}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.5rem;}
+    .card-full{grid-column:1/-1;}
+    .card-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.45rem;}
+    .ico{width:27px;height:27px;background:var(--gold-dim);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;}
+    .section-label{font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:0.45rem;}
+
+    .svc-row{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);}
+    .svc-row:last-child{border-bottom:none;}
+    .svc-n{flex:1;font-size:0.85rem;}
+    .price-inp{width:75px;background:var(--surface);border:1px solid var(--border);color:var(--gold);padding:0.32rem 0.45rem;border-radius:6px;font-family:'Sora',sans-serif;font-size:0.83rem;font-weight:600;outline:none;text-align:center;}
+    .price-inp:focus{border-color:var(--gold);}
+    .btn-icon{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:0.26rem 0.45rem;cursor:pointer;font-size:0.78rem;transition:all 0.13s;}
+    .btn-icon:hover{border-color:var(--danger);color:var(--danger);}
+
+    .brb-row{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0;border-bottom:1px solid var(--border);}
+    .brb-row:last-child{border-bottom:none;}
+    .brb-emoji{font-size:1.2rem;width:28px;text-align:center;}
+    .brb-n{flex:1;font-size:0.85rem;font-weight:500;}
+
+    .add-row{display:flex;gap:0.45rem;margin-top:0.9rem;flex-wrap:wrap;}
+    .add-row input{flex:1;min-width:80px;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.55rem 0.75rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.83rem;outline:none;transition:border-color 0.2s;}
+    .add-row input:focus{border-color:var(--gold);}
+    .add-row input::placeholder{color:var(--muted);}
+    .btn-add{background:var(--gold);color:#000;border:none;padding:0.55rem 0.9rem;border-radius:7px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;font-size:0.8rem;white-space:nowrap;transition:all 0.15s;}
+    .btn-add:hover{background:var(--gold-light);}
+    .btn-save{width:100%;background:var(--gold);color:#000;border:none;padding:0.75rem;border-radius:8px;font-family:'Sora',sans-serif;font-weight:700;cursor:pointer;font-size:0.88rem;margin-top:0.9rem;transition:all 0.15s;}
+    .btn-save:hover{background:var(--gold-light);}
+
+    .pw-row{display:flex;gap:0.5rem;margin-top:0.7rem;}
+    .pw-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.62rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+    .pw-row input:focus{border-color:var(--gold);}
+
+    /* HORÁRIOS */
+    .horario-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.7rem;}
+    @media(max-width:400px){.horario-grid{grid-template-columns:1fr;}}
+    .horario-group label{display:block;font-size:0.7rem;font-weight:500;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;}
+    .horario-group input, .horario-group select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.62rem 0.75rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.88rem;outline:none;transition:border-color 0.2s;}
+    .horario-group input:focus,.horario-group select:focus{border-color:var(--gold);}
+
+    /* NOME */
+    .nome-row{display:flex;gap:0.5rem;margin-top:0.5rem;}
+    .nome-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.7rem 0.9rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
+    .nome-row input:focus{border-color:var(--gold);}
+
+    hr{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+
+    .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--success);color:#fff;padding:0.8rem 1.3rem;border-radius:10px;font-weight:600;font-size:0.85rem;box-shadow:0 8px 30px rgba(0,0,0,0.4);opacity:0;transform:translateY(12px);transition:all 0.3s;z-index:999;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateY(0);}
+
+    @media(max-width:500px){.appt-card{flex-direction:column;align-items:flex-start;}.appt-actions{align-items:flex-start;}}
+
+    /* ===== COMPUTADOR (telas grandes) ===== */
+    @media(min-width:1024px){
+      .page{max-width:1240px;padding:2.4rem 2rem;}
+      .appt-list{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;align-items:start;}
+      .stats{gap:1.1rem;}
+    }
+    @media(min-width:1500px){
+      .page{max-width:1380px;}
+      .appt-list{grid-template-columns:1fr 1fr 1fr;}
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="login-wrap">
+  <div class="login-box">
+    <div class="login-logo logo-nome">BarberKing</div>
+    <div class="login-sub">Painel do Barbeiro</div>
+    <input type="password" id="pw-input" placeholder="Digite a sua senha" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
+    <button class="btn-login" onclick="doLogin()">Entrar</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <nav>
+    <div class="logo logo-nome">BarberKing</div>
+    <div class="nav-right">
+      <span id="brb-tag" style="font-size:0.8rem;color:var(--gold);font-weight:600;"></span>
+      <button class="notif-btn" id="notif-btn" onclick="ativarNotificacoes()">?? Ativar alertas</button>
+      <button class="tab active" id="tab-agenda" onclick="showPage('agenda')">?? Agenda</button>
+      <button class="tab" id="tab-config" onclick="showPage('config')">?? Minha conta</button>
+      <button class="btn-sair" onclick="sair()">Sair</button>
+    </div>
+  </nav>
+
+  <!-- AGENDA -->
+  <div class="page active" id="page-agenda">
+    <div class="stats" id="stats"></div>
+    <div class="filters">
+      <input type="date" id="f-date" onchange="renderAgenda()"/>
+      <input type="text" id="f-search" placeholder="?? Buscar cliente..." oninput="renderAgenda()" style="min-width:160px"/>
+      <button class="btn-clear" onclick="clearFilters()">? Limpar</button>
+    </div>
+    <div class="appt-list" id="appt-list"></div>
+  </div>
+
+  <!-- MINHA CONTA -->
+  <div class="page" id="page-config">
+    <div class="settings-grid">
+
+      <!-- ALTERAR MINHA SENHA -->
+      <div class="card">
+        <div class="card-title"><span class="ico">??</span> Alterar minha senha</div>
+        <p class="section-label" style="margin-bottom:0.8rem">Essa é a senha que você usa para entrar neste painel</p>
+        <div class="pw-row">
+          <input type="password" id="new-pw" placeholder="Nova senha (mín. 4 caracteres)" onkeydown="if(event.key==='Enter')changePassword()"/>
+          <button class="btn-add" onclick="changePassword()">Salvar</button>
+        </div>
+      </div>
+
+      <!-- MINHAS FOLGAS — full width -->
+      <div class="card card-full">
+        <div class="card-title"><span class="ico">???</span> Meus dias de folga</div>
+        <p class="section-label" style="margin-bottom:1rem;text-transform:none;letter-spacing:0;font-size:0.82rem;">Marque um dia em que você não vai atender (imprevistos, folga). Esse dia some do calendário <b>só para você</b> — os outros barbeiros continuam normalmente.</p>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+          <input type="date" id="folga-inp" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.58rem 0.8rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;"/>
+          <button class="btn-add" onclick="addMinhaFolga()">+ Adicionar folga</button>
+        </div>
+        <div id="folgas-list" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
+      </div>
+
+      <!-- INFO -->
+      <div class="card card-full">
+        <div class="card-title"><span class="ico">??</span> Sobre o seu painel</div>
+        <p class="section-label" style="line-height:1.7;text-transform:none;letter-spacing:0;font-size:0.82rem;">
+          Aqui aparecem somente os agendamentos feitos para você.<br>
+          Serviços, preços e horários de funcionamento são definidos pelo dono da barbearia.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE (banco de dados na nuvem)
+// ============================================================
+// >>> COLE AQUI A SUA PROJECT URL E A SUA PUBLISHABLE KEY <<<
+const { createClient } = supabase;
+const db = createClient('SUA_PROJECT_URL', 'SUA_PUBLISHABLE_KEY');
+
+// Cache em memoria: carregado 1x quando a pagina abre.
+const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
+
+async function loadAll(){
+  const [ap, br, sv, fo, fb, cf] = await Promise.all([
+    db.from('appointments').select('*'),
+    db.from('barbers').select('*'),
+    db.from('services').select('*'),
+    db.from('folgas').select('*'),
+    db.from('folgas_barbeiro').select('*'),
+    db.from('config').select('*')
+  ]);
+  DB.appts = (ap.data||[]).map(r=>({
+    id:r.id, code:r.code, name:r.name, tel:r.tel,
+    services:r.services||[], serviceIds:r.service_ids||[],
+    barber:r.barber, barberId:r.barber_id,
+    date:r.date, slot:r.slot, total:r.total,
+    pagamento:r.pagamento, createdAt:r.created_at
+  }));
+  DB.barbers  = br.data||[];
+  DB.services = sv.data||[];
+  DB.folgas   = (fo.data||[]).map(r=>r.date);
+  DB.folgasBrb = {};
+  (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
+  DB.config = {};
+  (cf.data||[]).forEach(r=>{ DB.config[r.key] = r.value; });
+}
+
+// ============================================================
+// DADOS
+// ============================================================
+function getBarbers(){return DB.barbers;}
+function getAppts(){return DB.appts;}
+function getNome(){return DB.config.nome||'BarberKing';}
+
+// Garante que todo barbeiro tenha uma senha (compatibilidade com dados antigos)
+function migrateBarbers(){ /* nao e mais necessario com o banco de dados */ }
+
+// Quem está logado
+let currentBarberId=null;
+let currentBarberName='';
+
+// ============================================================
+// LOGIN (pela senha do próprio barbeiro)
+// ============================================================
+async function doLogin(){
+  await ready;
+  const typed=document.getElementById('pw-input').value;
+  const me=getBarbers().find(b=>b.pw && b.pw===typed);
+  if(me){
+    currentBarberId=me.id;
+    currentBarberName=me.name;
+    document.getElementById('login-wrap').style.display='none';
+    document.getElementById('app').style.display='block';
+    initApp();
+  } else {
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('pw-input').value='';
+  }
+}
+function sair(){
+  currentBarberId=null; currentBarberName='';
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-wrap').style.display='flex';
+  document.getElementById('pw-input').value='';
+  document.getElementById('login-err').style.display='none';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initApp(){
+  applyLogos();
+  document.getElementById('brb-tag').textContent='?? '+currentBarberName;
+  renderStats();
+  renderAgenda();
+  checkNotifStatus();
+}
+function applyLogos(){
+  const n=getNome();
+  document.querySelectorAll('.logo-nome').forEach(el=>el.textContent=n);
+  document.title='Barbeiro — '+n;
+}
+
+// ============================================================
+// NOTIFICAÇÕES
+// ============================================================
+function checkNotifStatus(){
+  const btn=document.getElementById('notif-btn');
+  if(!('Notification' in window)){btn.style.display='none';return;}
+  if(Notification.permission==='granted'){
+    btn.textContent='?? Alertas ativos'; btn.style.background='rgba(76,175,125,0.15)';
+    btn.style.color='var(--success)'; btn.style.borderColor='rgba(76,175,125,0.3)';
+    btn.style.cursor='default';
+  } else {
+    btn.textContent='?? Ativar alertas';
+  }
+}
+function ativarNotificacoes(){
+  if(!('Notification' in window)) return toast('?? Seu navegador não suporta notificações','#e05555');
+  if(Notification.permission==='granted'){toast('? Alertas já estão ativos!');return;}
+  Notification.requestPermission().then(p=>{
+    if(p==='granted'){
+      checkNotifStatus();
+      toast('? Alertas ativados!');
+      new Notification('?? '+getNome(), {body:'Alertas ativados com sucesso!'});
+    } else {
+      toast('?? Permissão negada. Ative nas configurações do navegador.','#e05555');
+    }
+  });
+}
+
+// ============================================================
+// AGENDAMENTOS DO BARBEIRO (somente os dele)
+// ============================================================
+function meusAppts(){ return getAppts().filter(a=>a.barberId===currentBarberId); }
+
+function renderStats(){
+  const appts=meusAppts(), today=fmtD(new Date());
+  const todayA=appts.filter(a=>a.date===today);
+  const totalR=appts.reduce((s,a)=>s+(a.total||0),0);
+  const todayR=todayA.reduce((s,a)=>s+(a.total||0),0);
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="stat-val">${appts.length}</div><div class="stat-label">Total de agendamentos</div></div>
+    <div class="stat"><div class="stat-val">${todayA.length}</div><div class="stat-label">Agendamentos hoje</div></div>
+    <div class="stat"><div class="stat-val">R$ ${todayR}</div><div class="stat-label">Receita hoje</div></div>
+    <div class="stat"><div class="stat-val">R$ ${totalR}</div><div class="stat-label">Receita total</div></div>`;
+}
+
+const PAY_LABEL={pix:'?? Pix',credito:'?? Crédito',debito:'?? Débito',dinheiro:'?? Dinheiro'};
+
+function renderAgenda(){
+  const fDate=document.getElementById('f-date').value;
+  const fSearch=document.getElementById('f-search').value.toLowerCase();
+  let filtered=meusAppts();
+  if(fDate)   filtered=filtered.filter(a=>a.date===fDate);
+  if(fSearch) filtered=filtered.filter(a=>a.name.toLowerCase().includes(fSearch)||a.tel.includes(fSearch));
+  filtered.sort((a,b)=>{ if(a.date!==b.date)return a.date>b.date?1:-1; return a.slot>b.slot?1:-1; });
+
+  const list=document.getElementById('appt-list');
+  if(!filtered.length){
+    list.innerHTML=`<div class="empty"><div>??</div>Nenhum agendamento encontrado.</div>`;
+    return;
+  }
+  list.innerHTML=filtered.map(a=>{
+    const d=new Date(a.date+'T12:00');
+    const day=d.getDate().toString().padStart(2,'0');
+    const mon=d.toLocaleDateString('pt-BR',{month:'short'});
+    const svcs=a.services.join(', ');
+    const telLimpo=a.tel.replace(/\D/g,'');
+    const msg=encodeURIComponent(`Olá ${a.name}! Confirmando seu agendamento na ${getNome()} para ${d.toLocaleDateString('pt-BR')} às ${a.slot}. ?? ${svcs}. Qualquer dúvida, estamos à disposição!`);
+    const wppUrl=`https://wa.me/55${telLimpo}?text=${msg}`;
+    return `
+      <div class="appt-card" id="appt-${a.id}">
+        <div class="appt-date-b"><div class="day">${day}</div><div class="mon">${mon}</div></div>
+        <div class="appt-info">
+          <div class="appt-name">${a.name}</div>
+          <div class="appt-meta">?? ${a.slot} · ?? ${svcs}</div>
+          <div class="appt-meta">?? ${a.tel} · ${PAY_LABEL[a.pagamento]||'—'}</div>
+        </div>
+        <div class="appt-actions">
+          <span class="badge">Confirmado</span>
+          <span class="appt-total">R$ ${a.total||0}</span>
+          <div class="appt-btns">
+            <a class="btn-wpp" href="${wppUrl}" target="_blank">?? WhatsApp</a>
+            <button class="btn-del" onclick="delAppt('${a.id}')">?</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function delAppt(id){
+  if(!confirm('Cancelar este agendamento?')) return;
+  const { error }=await db.from('appointments').delete().eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao cancelar','#e05555'); }
+  DB.appts=DB.appts.filter(a=>a.id!==id);
+  renderStats(); renderAgenda(); toast('??? Agendamento cancelado','#888');
+}
+function clearFilters(){
+  document.getElementById('f-date').value='';
+  document.getElementById('f-search').value='';
+  renderAgenda();
+}
+
+// ============================================================
+// MINHA SENHA (altera só a senha deste barbeiro)
+// ============================================================
+async function changePassword(){
+  const pw=document.getElementById('new-pw').value.trim();
+  if(!pw||pw.length<4) return toast('?? Senha muito curta (mín. 4 caracteres)','#e05555');
+  const barbers=getBarbers();
+  const me=barbers.find(b=>b.id===currentBarberId);
+  if(!me) return toast('?? Erro ao identificar o barbeiro','#e05555');
+  // evita que a nova senha seja igual à de outro barbeiro
+  if(barbers.some(b=>b.id!==currentBarberId && b.pw===pw))
+    return toast('?? Essa senha já está em uso por outro barbeiro','#e05555');
+  const { error }=await db.from('barbers').update({pw}).eq('id',currentBarberId);
+  if(error){ console.error(error); return toast('? Erro ao salvar a senha','#e05555'); }
+  me.pw=pw;
+  document.getElementById('new-pw').value='';
+  toast('? Senha alterada!');
+}
+
+// ============================================================
+// MINHAS FOLGAS (bloqueiam o calendário só para este barbeiro)
+// ============================================================
+function getMinhasFolgas(){ return DB.folgasBrb[currentBarberId]||[]; }
+function renderMinhasFolgas(){
+  const folgas=getMinhasFolgas().slice().sort();
+  const el=document.getElementById('folgas-list');
+  if(!folgas.length){
+    el.innerHTML=`<span style="color:var(--muted);font-size:0.82rem;">Nenhum dia de folga cadastrado.</span>`;
+    return;
+  }
+  el.innerHTML=folgas.map(d=>{
+    const fmt=new Date(d+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    return `<div style="display:flex;align-items:center;gap:0.4rem;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.25);border-radius:8px;padding:0.35rem 0.7rem;font-size:0.8rem;">
+      <span>??? ${fmt}</span>
+      <button onclick="removeMinhaFolga('${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">?</button>
+    </div>`;
+  }).join('');
+}
+async function addMinhaFolga(){
+  const d=document.getElementById('folga-inp').value;
+  if(!d) return toast('?? Selecione uma data','#e05555');
+  const folgas=getMinhasFolgas();
+  if(folgas.includes(d)) return toast('?? Essa data já está marcada como folga','#e05555');
+  const { error }=await db.from('folgas_barbeiro').insert({barber_id:currentBarberId,date:d});
+  if(error){ console.error(error); return toast('? Erro ao salvar a folga','#e05555'); }
+  (DB.folgasBrb[currentBarberId]=DB.folgasBrb[currentBarberId]||[]).push(d);
+  document.getElementById('folga-inp').value='';
+  renderMinhasFolgas();
+  toast('? Folga adicionada!');
+}
+async function removeMinhaFolga(d){
+  const { error }=await db.from('folgas_barbeiro').delete().eq('barber_id',currentBarberId).eq('date',d);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  DB.folgasBrb[currentBarberId]=getMinhasFolgas().filter(f=>f!==d);
+  renderMinhasFolgas();
+  toast('??? Folga removida','#888');
+}
+
+// ============================================================
+// PÁGINAS
+// ============================================================
+function showPage(p){
+  ['agenda','config'].forEach(id=>{
+    document.getElementById('page-'+id).classList.toggle('active',id===p);
+    document.getElementById('tab-'+id).classList.toggle('active',id===p);
+  });
+  if(p==='agenda'){ renderStats(); renderAgenda(); }
+  if(p==='config'){ renderMinhasFolgas(); }
+}
+
+// ============================================================
+// HELPERS
+// ============================================================
+function fmtD(d){return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
+function toast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--success)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// Carrega os dados do banco assim que a pagina abre
+const ready = loadAll();
+</script>
+</body>
+</html>
