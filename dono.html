@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin — BarberKing</title>
+  <title>Admin � BarberKing</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <style>
     :root{--bg:#0d0d0d;--surface:#161616;--card:#1e1e1e;--border:#2a2a2a;--gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.12);--text:#f0ebe3;--muted:#7a7570;--danger:#e05555;--success:#4caf7d;}
@@ -110,7 +110,7 @@
     .pw-row input{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.62rem 0.85rem;border-radius:7px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
     .pw-row input:focus{border-color:var(--gold);}
 
-    /* HORÁRIOS */
+    /* HOR�RIOS */
     .horario-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.7rem;}
     @media(max-width:400px){.horario-grid{grid-template-columns:1fr;}}
     .horario-group label{display:block;font-size:0.7rem;font-weight:500;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.3rem;}
@@ -140,6 +140,7 @@
       .appt-list{grid-template-columns:1fr 1fr 1fr;}
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -147,7 +148,7 @@
 <div class="login-wrap" id="login-wrap">
   <div class="login-box">
     <div class="login-logo logo-nome">BarberKing</div>
-    <div class="login-sub">Painel do Dono 👑</div>
+    <div class="login-sub">Painel do Dono ??</div>
     <input type="password" id="pw-input" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')doLogin()"/>
     <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
     <button class="btn-login" onclick="doLogin()">Entrar</button>
@@ -159,10 +160,10 @@
   <nav>
     <div class="logo logo-nome">BarberKing</div>
     <div class="nav-right">
-      <span style="font-size:0.8rem;color:var(--gold);font-weight:600;">👑 Dono</span>
-      <button class="notif-btn" id="notif-btn" onclick="ativarNotificacoes()">🔔 Ativar alertas</button>
-      <button class="tab active" id="tab-agenda" onclick="showPage('agenda')">📋 Agenda</button>
-      <button class="tab" id="tab-config" onclick="showPage('config')">⚙️ Config</button>
+      <span style="font-size:0.8rem;color:var(--gold);font-weight:600;">?? Dono</span>
+      <button class="notif-btn" id="notif-btn" onclick="ativarNotificacoes()">?? Ativar alertas</button>
+      <button class="tab active" id="tab-agenda" onclick="showPage('agenda')">?? Agenda</button>
+      <button class="tab" id="tab-config" onclick="showPage('config')">?? Config</button>
       <button class="btn-sair" onclick="sair()">Sair</button>
     </div>
   </nav>
@@ -173,8 +174,8 @@
     <div class="filters">
       <input type="date" id="f-date" onchange="renderAgenda()"/>
       <select id="f-barber" onchange="renderAgenda()"><option value="">Todos os barbeiros</option></select>
-      <input type="text" id="f-search" placeholder="🔍 Buscar cliente..." oninput="renderAgenda()" style="min-width:160px"/>
-      <button class="btn-clear" onclick="clearFilters()">✕ Limpar</button>
+      <input type="text" id="f-search" placeholder="?? Buscar cliente..." oninput="renderAgenda()" style="min-width:160px"/>
+      <button class="btn-clear" onclick="clearFilters()">? Limpar</button>
     </div>
     <div class="appt-list" id="appt-list"></div>
   </div>
@@ -182,27 +183,27 @@
   <!-- CONFIG -->
   <div class="page" id="page-config">
 
-    <!-- NOME DA BARBEARIA — full width -->
+    <!-- NOME DA BARBEARIA � full width -->
     <div style="margin-bottom:1.3rem">
       <div class="card">
-        <div class="card-title"><span class="ico">🏠</span> Nome da Barbearia</div>
+        <div class="card-title"><span class="ico">??</span> Nome da Barbearia</div>
         <p class="section-label">Aparece no topo do site e do painel</p>
         <div class="nome-row">
-          <input id="inp-nome-barbearia" placeholder="Ex: Barbearia do Vinícius"/>
-          <button class="btn-add" onclick="saveNome()">💾 Salvar</button>
+          <input id="inp-nome-barbearia" placeholder="Ex: Barbearia do Vin�cius"/>
+          <button class="btn-add" onclick="saveNome()">?? Salvar</button>
         </div>
       </div>
     </div>
 
     <div class="settings-grid">
 
-      <!-- SERVIÇOS -->
+      <!-- SERVI�OS -->
       <div class="card">
-        <div class="card-title"><span class="ico">✂️</span> Serviços & Preços</div>
+        <div class="card-title"><span class="ico">??</span> Servi�os & Pre�os</div>
         <div id="svc-list"></div>
-        <button class="btn-save" onclick="saveServicePrices()">💾 Salvar preços</button>
+        <button class="btn-save" onclick="saveServicePrices()">?? Salvar pre�os</button>
         <hr/>
-        <p class="section-label">Adicionar serviço</p>
+        <p class="section-label">Adicionar servi�o</p>
         <div class="add-row">
           <input id="new-svc-name" placeholder="Nome"/>
           <input id="new-svc-price" placeholder="R$" type="number" style="width:65px;min-width:65px"/>
@@ -213,14 +214,14 @@
 
       <!-- BARBEIROS + SENHAS -->
       <div class="card">
-        <div class="card-title"><span class="ico">💈</span> Barbeiros & acessos</div>
-        <p class="section-label" style="margin-bottom:0.8rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Cada barbeiro entra no painel dele (admin) com a própria senha. Aqui você vê e altera a senha de cada um.</p>
+        <div class="card-title"><span class="ico">??</span> Barbeiros & acessos</div>
+        <p class="section-label" style="margin-bottom:0.8rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Cada barbeiro entra no painel dele (admin) com a pr�pria senha. Aqui voc� v� e altera a senha de cada um.</p>
         <div id="brb-list"></div>
         <hr/>
-        <p class="section-label">➕ Adicionar barbeiro (cria o acesso dele)</p>
+        <p class="section-label">? Adicionar barbeiro (cria o acesso dele)</p>
         <div class="add-row">
           <input id="new-brb-name" placeholder="Nome do barbeiro"/>
-          <input id="new-brb-emoji" placeholder="✂️" style="width:55px;min-width:55px;text-align:center"/>
+          <input id="new-brb-emoji" placeholder="??" style="width:55px;min-width:55px;text-align:center"/>
         </div>
         <div class="add-row">
           <input id="new-brb-pw" placeholder="Senha de acesso do barbeiro"/>
@@ -230,18 +231,18 @@
 
       <!-- SENHA DO DONO -->
       <div class="card">
-        <div class="card-title"><span class="ico">👑</span> Senha do dono</div>
-        <p class="section-label" style="margin-bottom:0.8rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Esta é a senha que abre este painel do dono.</p>
+        <div class="card-title"><span class="ico">??</span> Senha do dono</div>
+        <p class="section-label" style="margin-bottom:0.8rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Esta � a senha que abre este painel do dono.</p>
         <div class="pw-row">
-          <input type="password" id="owner-pw" placeholder="Nova senha do dono (mín. 4 caracteres)" onkeydown="if(event.key==='Enter')changeOwnerPassword()"/>
+          <input type="password" id="owner-pw" placeholder="Nova senha do dono (m�n. 4 caracteres)" onkeydown="if(event.key==='Enter')changeOwnerPassword()"/>
           <button class="btn-add" onclick="changeOwnerPassword()">Salvar</button>
         </div>
       </div>
 
-      <!-- DIAS DE FOLGA — full width -->
+      <!-- DIAS DE FOLGA � full width -->
       <div class="card card-full">
-        <div class="card-title"><span class="ico">🏖️</span> Dias de Folga da Barbearia</div>
-        <p class="section-label" style="margin-bottom:1rem">Bloqueiam o calendário para <b>todos os barbeiros</b> (ex: feriados, barbearia fechada). Cada barbeiro também marca as folgas pessoais dele no próprio painel.</p>
+        <div class="card-title"><span class="ico">???</span> Dias de Folga da Barbearia</div>
+        <p class="section-label" style="margin-bottom:1rem">Bloqueiam o calend�rio para <b>todos os barbeiros</b> (ex: feriados, barbearia fechada). Cada barbeiro tamb�m marca as folgas pessoais dele no pr�prio painel.</p>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
           <input type="date" id="folga-inp" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:0.58rem 0.8rem;border-radius:8px;font-family:'Sora',sans-serif;font-size:0.85rem;outline:none;"/>
           <button class="btn-add" onclick="addFolga()">+ Adicionar folga</button>
@@ -249,17 +250,17 @@
         <div id="folgas-list" style="display:flex;flex-wrap:wrap;gap:0.5rem;"></div>
       </div>
 
-      <!-- FOLGAS DOS BARBEIROS — full width -->
+      <!-- FOLGAS DOS BARBEIROS � full width -->
       <div class="card card-full">
-        <div class="card-title"><span class="ico">📅</span> Folgas dos Barbeiros</div>
-        <p class="section-label" style="margin-bottom:1rem">Folgas pessoais que cada barbeiro marcou no painel dele. Você pode remover se precisar.</p>
+        <div class="card-title"><span class="ico">??</span> Folgas dos Barbeiros</div>
+        <p class="section-label" style="margin-bottom:1rem">Folgas pessoais que cada barbeiro marcou no painel dele. Voc� pode remover se precisar.</p>
         <div id="folgas-brb-list" style="display:flex;flex-direction:column;gap:0.9rem;"></div>
       </div>
 
-      <!-- HORÁRIO DE FUNCIONAMENTO — full width -->
+      <!-- HOR�RIO DE FUNCIONAMENTO � full width -->
       <div class="card card-full">
-        <div class="card-title"><span class="ico">🕐</span> Horário de Funcionamento</div>
-        <p class="section-label" style="margin-bottom:1rem">Define quais horários aparecem para os clientes agendarem</p>
+        <div class="card-title"><span class="ico">??</span> Hor�rio de Funcionamento</div>
+        <p class="section-label" style="margin-bottom:1rem">Define quais hor�rios aparecem para os clientes agendarem</p>
         <div class="horario-grid">
           <div class="horario-group">
             <label>Abertura</label>
@@ -279,7 +280,7 @@
             </select>
           </div>
         </div>
-        <button class="btn-save" style="max-width:280px;margin-top:1rem" onclick="saveHorario()">💾 Salvar horário</button>
+        <button class="btn-save" style="max-width:280px;margin-top:1rem" onclick="saveHorario()">?? Salvar hor�rio</button>
         <div id="horario-preview" style="margin-top:0.8rem;font-size:0.78rem;color:var(--muted);"></div>
       </div>
 
@@ -291,40 +292,54 @@
 
 <script>
 // ============================================================
-// DADOS
+// SUPABASE (banco de dados na nuvem)
 // ============================================================
-function getServices(){return JSON.parse(localStorage.getItem('bk_services')||'null')||[
-  {id:'corte',        name:'Corte',                              price:25,  time:30},
-  {id:'corte_sobr',   name:'Corte + Sobrancelha',                price:30,  time:40},
-  {id:'corte_luzes',  name:'Corte + Luzes',                      price:70,  time:90},
-  {id:'corte_pigm',   name:'Corte + Pigmentação',                price:45,  time:50},
-  {id:'corte_barba',  name:'Corte + Barba',                      price:35,  time:50},
-  {id:'corte_nevou',  name:'Corte + Nevou',                      price:100, time:90},
-  {id:'corte_pigm_sb',name:'Corte + Pigmentação + Sobrancelha',  price:50,  time:60},
-  {id:'corte_luz_sb', name:'Corte + Luzes + Sobrancelha',        price:75,  time:100},
-  {id:'luzes',        name:'Luzes',                              price:45,  time:60},
-  {id:'pigmentacao',  name:'Pigmentação',                        price:20,  time:30},
-  {id:'sobrancelha',  name:'Sobrancelha',                        price:10,  time:10},
-  {id:'barba',        name:'Barba',                              price:10,  time:20},
-  {id:'matizar',      name:'Matizar',                            price:10,  time:20},
-  {id:'rosa_azul',    name:'Pintar Rosa ou Azul',                price:35,  time:60},
-];}
-function getBarbers(){return JSON.parse(localStorage.getItem('bk_barbers')||'null')||[{id:'vinicius',name:'Vinícius',emoji:'✂️',pw:'1234'}];}
-function getAppts(){return JSON.parse(localStorage.getItem('bk_appts')||'[]');}
-function getOwnerPw(){return localStorage.getItem('bk_owner_pw')||'dono123';}
-function getNome(){return localStorage.getItem('bk_nome')||'BarberKing';}
+// >>> COLE AQUI A SUA PROJECT URL E A SUA PUBLISHABLE KEY <<<
+const { createClient } = supabase;
+const db = createClient('SUA_PROJECT_URL', 'SUA_PUBLISHABLE_KEY');
 
-// Garante que todo barbeiro tenha uma senha (compatibilidade com dados antigos)
-function migrateBarbers(){
-  const legacy=localStorage.getItem('bk_pw')||'1234';
-  let mudou=false;
-  const barbers=getBarbers();
-  barbers.forEach(b=>{ if(!b.pw){ b.pw=legacy; mudou=true; } });
-  if(mudou) localStorage.setItem('bk_barbers',JSON.stringify(barbers));
+// Cache em memoria: carregado 1x quando a pagina abre.
+const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
+
+async function loadAll(){
+  const [ap, br, sv, fo, fb, cf] = await Promise.all([
+    db.from('appointments').select('*'),
+    db.from('barbers').select('*'),
+    db.from('services').select('*'),
+    db.from('folgas').select('*'),
+    db.from('folgas_barbeiro').select('*'),
+    db.from('config').select('*')
+  ]);
+  DB.appts = (ap.data||[]).map(r=>({
+    id:r.id, code:r.code, name:r.name, tel:r.tel,
+    services:r.services||[], serviceIds:r.service_ids||[],
+    barber:r.barber, barberId:r.barber_id,
+    date:r.date, slot:r.slot, total:r.total,
+    pagamento:r.pagamento, createdAt:r.created_at
+  }));
+  DB.barbers  = br.data||[];
+  DB.services = sv.data||[];
+  DB.folgas   = (fo.data||[]).map(r=>r.date);
+  DB.folgasBrb = {};
+  (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
+  DB.config = {};
+  (cf.data||[]).forEach(r=>{ DB.config[r.key] = r.value; });
 }
 
+// ============================================================
+// DADOS
+// ============================================================
+function getServices(){return DB.services;}
+function getBarbers(){return DB.barbers;}
+function getAppts(){return DB.appts;}
+function getOwnerPw(){return DB.config.owner_pw||'dono123';}
+function getNome(){return DB.config.nome||'BarberKing';}
+
+// Garante que todo barbeiro tenha uma senha (compatibilidade com dados antigos)
+function migrateBarbers(){ /* nao e mais necessario com o banco de dados */ }
+
 function getSlots(){
-  const cfg=JSON.parse(localStorage.getItem('bk_horario')||'null');
+  const cfg=DB.config.horario||null;
   if(!cfg) return ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30'];
   const slots=[];
   let [h,m]=cfg.inicio.split(':').map(Number);
@@ -340,7 +355,8 @@ function getSlots(){
 // ============================================================
 // LOGIN (senha do dono)
 // ============================================================
-function doLogin(){
+async function doLogin(){
+  await ready;
   if(document.getElementById('pw-input').value===getOwnerPw()){
     document.getElementById('login-wrap').style.display='none';
     document.getElementById('app').style.display='block';
@@ -377,33 +393,33 @@ function initApp(){
 function applyLogos(){
   const n=getNome();
   document.querySelectorAll('.logo-nome').forEach(el=>el.textContent=n);
-  document.title='Dono — '+n;
+  document.title='Dono � '+n;
 }
 
 // ============================================================
-// NOTIFICAÇÕES
+// NOTIFICA��ES
 // ============================================================
 function checkNotifStatus(){
   const btn=document.getElementById('notif-btn');
   if(!('Notification' in window)){btn.style.display='none';return;}
   if(Notification.permission==='granted'){
-    btn.textContent='🔔 Alertas ativos'; btn.style.background='rgba(76,175,125,0.15)';
+    btn.textContent='?? Alertas ativos'; btn.style.background='rgba(76,175,125,0.15)';
     btn.style.color='var(--success)'; btn.style.borderColor='rgba(76,175,125,0.3)';
     btn.style.cursor='default';
   } else {
-    btn.textContent='🔔 Ativar alertas';
+    btn.textContent='?? Ativar alertas';
   }
 }
 function ativarNotificacoes(){
-  if(!('Notification' in window)) return toast('⚠️ Seu navegador não suporta notificações','#e05555');
-  if(Notification.permission==='granted'){toast('✅ Alertas já estão ativos!');return;}
+  if(!('Notification' in window)) return toast('?? Seu navegador n�o suporta notifica��es','#e05555');
+  if(Notification.permission==='granted'){toast('? Alertas j� est�o ativos!');return;}
   Notification.requestPermission().then(p=>{
     if(p==='granted'){
       checkNotifStatus();
-      toast('✅ Alertas ativados!');
-      new Notification('💈 '+getNome(), {body:'Alertas ativados com sucesso!'});
+      toast('? Alertas ativados!');
+      new Notification('?? '+getNome(), {body:'Alertas ativados com sucesso!'});
     } else {
-      toast('⚠️ Permissão negada. Ative nas configurações do navegador.','#e05555');
+      toast('?? Permiss�o negada. Ative nas configura��es do navegador.','#e05555');
     }
   });
 }
@@ -426,7 +442,7 @@ function renderStats(){
 // ============================================================
 // AGENDA (todos, com filtro por barbeiro)
 // ============================================================
-const PAY_LABEL={pix:'📱 Pix',credito:'💳 Crédito',debito:'🏧 Débito',dinheiro:'💵 Dinheiro'};
+const PAY_LABEL={pix:'?? Pix',credito:'?? Cr�dito',debito:'?? D�bito',dinheiro:'?? Dinheiro'};
 
 function renderBarberFilter(){
   const sel=document.getElementById('f-barber'), cur=sel.value;
@@ -447,7 +463,7 @@ function renderAgenda(){
 
   const list=document.getElementById('appt-list');
   if(!filtered.length){
-    list.innerHTML=`<div class="empty"><div>📭</div>Nenhum agendamento encontrado.</div>`;
+    list.innerHTML=`<div class="empty"><div>??</div>Nenhum agendamento encontrado.</div>`;
     return;
   }
   list.innerHTML=filtered.map(a=>{
@@ -456,32 +472,34 @@ function renderAgenda(){
     const mon=d.toLocaleDateString('pt-BR',{month:'short'});
     const svcs=a.services.join(', ');
     const telLimpo=a.tel.replace(/\D/g,'');
-    const msg=encodeURIComponent(`Olá ${a.name}! Confirmando seu agendamento na ${getNome()} para ${d.toLocaleDateString('pt-BR')} às ${a.slot}. ✂️ ${svcs}. Qualquer dúvida, estamos à disposição!`);
+    const msg=encodeURIComponent(`Ol� ${a.name}! Confirmando seu agendamento na ${getNome()} para ${d.toLocaleDateString('pt-BR')} �s ${a.slot}. ?? ${svcs}. Qualquer d�vida, estamos � disposi��o!`);
     const wppUrl=`https://wa.me/55${telLimpo}?text=${msg}`;
     return `
       <div class="appt-card" id="appt-${a.id}">
         <div class="appt-date-b"><div class="day">${day}</div><div class="mon">${mon}</div></div>
         <div class="appt-info">
           <div class="appt-name">${a.name}</div>
-          <div class="appt-meta">🕐 ${a.slot} · 💈 ${a.barber} · ✂️ ${svcs}</div>
-          <div class="appt-meta">📱 ${a.tel} · ${PAY_LABEL[a.pagamento]||'—'}</div>
+          <div class="appt-meta">?? ${a.slot} � ?? ${a.barber} � ?? ${svcs}</div>
+          <div class="appt-meta">?? ${a.tel} � ${PAY_LABEL[a.pagamento]||'�'}</div>
         </div>
         <div class="appt-actions">
           <span class="badge">Confirmado</span>
           <span class="appt-total">R$ ${a.total||0}</span>
           <div class="appt-btns">
-            <a class="btn-wpp" href="${wppUrl}" target="_blank">📲 WhatsApp</a>
-            <button class="btn-del" onclick="delAppt('${a.id}')">✕</button>
+            <a class="btn-wpp" href="${wppUrl}" target="_blank">?? WhatsApp</a>
+            <button class="btn-del" onclick="delAppt('${a.id}')">?</button>
           </div>
         </div>
       </div>`;
   }).join('');
 }
 
-function delAppt(id){
+async function delAppt(id){
   if(!confirm('Cancelar este agendamento?')) return;
-  localStorage.setItem('bk_appts',JSON.stringify(getAppts().filter(a=>a.id!==id)));
-  renderStats(); renderAgenda(); toast('🗑️ Agendamento cancelado','#888');
+  const { error }=await db.from('appointments').delete().eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao cancelar','#e05555'); }
+  DB.appts=DB.appts.filter(a=>a.id!==id);
+  renderStats(); renderAgenda(); toast('??? Agendamento cancelado','#888');
 }
 function clearFilters(){
   document.getElementById('f-date').value='';
@@ -493,48 +511,54 @@ function clearFilters(){
 // ============================================================
 // CONFIG: NOME DA BARBEARIA
 // ============================================================
-function saveNome(){
+async function saveNome(){
   const n=document.getElementById('inp-nome-barbearia').value.trim();
-  if(!n) return toast('⚠️ Digite o nome','#e05555');
-  localStorage.setItem('bk_nome',n);
+  if(!n) return toast('?? Digite o nome','#e05555');
+  const { error }=await db.from('config').upsert({key:'nome',value:n});
+  if(error){ console.error(error); return toast('? Erro ao salvar o nome','#e05555'); }
+  DB.config.nome=n;
   applyLogos();
-  toast('✅ Nome salvo! Atualize os outros sites com F5.');
+  toast('? Nome salvo! Atualize os outros sites com F5.');
 }
 
 // ============================================================
-// CONFIG: SERVIÇOS
+// CONFIG: SERVI�OS
 // ============================================================
 function renderServicesList(){
   document.getElementById('svc-list').innerHTML=getServices().map(s=>`
     <div class="svc-row" id="srow-${s.id}">
       <span class="svc-n">${s.name}</span>
       <input class="price-inp" type="number" value="${s.price}" id="price-${s.id}" min="0"/>
-      <button class="btn-icon" onclick="removeService('${s.id}')">✕</button>
+      <button class="btn-icon" onclick="removeService('${s.id}')">?</button>
     </div>`).join('');
 }
-function saveServicePrices(){
+async function saveServicePrices(){
   const svcs=getServices();
   svcs.forEach(s=>{ const i=document.getElementById('price-'+s.id); if(i) s.price=parseInt(i.value)||s.price; });
-  localStorage.setItem('bk_services',JSON.stringify(svcs));
-  toast('✅ Preços atualizados!');
+  const { error }=await db.from('services').upsert(svcs);
+  if(error){ console.error(error); return toast('? Erro ao salvar os pre�os','#e05555'); }
+  toast('? Pre�os atualizados!');
 }
-function removeService(id){
-  if(!confirm('Remover este serviço?')) return;
-  localStorage.setItem('bk_services',JSON.stringify(getServices().filter(s=>s.id!==id)));
-  renderServicesList(); toast('🗑️ Serviço removido','#888');
+async function removeService(id){
+  if(!confirm('Remover este servi�o?')) return;
+  const { error }=await db.from('services').delete().eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  DB.services=DB.services.filter(s=>s.id!==id);
+  renderServicesList(); toast('??? Servi�o removido','#888');
 }
-function addService(){
+async function addService(){
   const name=document.getElementById('new-svc-name').value.trim();
   const price=parseInt(document.getElementById('new-svc-price').value)||0;
   const time=parseInt(document.getElementById('new-svc-time').value)||30;
-  if(!name) return toast('⚠️ Digite o nome do serviço','#e05555');
-  const svcs=getServices();
-  svcs.push({id:'svc_'+Date.now(),name,price,time});
-  localStorage.setItem('bk_services',JSON.stringify(svcs));
+  if(!name) return toast('?? Digite o nome do servi�o','#e05555');
+  const novo={id:'svc_'+Date.now(),name,price,time};
+  const { error }=await db.from('services').insert(novo);
+  if(error){ console.error(error); return toast('? Erro ao adicionar','#e05555'); }
+  DB.services.push(novo);
   document.getElementById('new-svc-name').value='';
   document.getElementById('new-svc-price').value='';
   document.getElementById('new-svc-time').value='';
-  renderServicesList(); toast('✅ Serviço adicionado!');
+  renderServicesList(); toast('? Servi�o adicionado!');
 }
 
 // ============================================================
@@ -546,62 +570,70 @@ function renderBarbersList(){
       <span class="brb-emoji">${b.emoji}</span>
       <span class="brb-n">${b.name}</span>
       <input class="price-inp" style="width:130px;color:var(--text);text-align:left;letter-spacing:0.04em;font-weight:500;" type="text" value="${b.pw||''}" id="bpw-${b.id}" placeholder="senha"/>
-      <button class="btn-icon" style="border-color:rgba(201,168,76,0.4);color:var(--gold);" onclick="saveBarberPw('${b.id}')" title="Salvar senha">💾</button>
-      <button class="btn-icon" onclick="removeBarber('${b.id}')" title="Remover barbeiro">✕</button>
+      <button class="btn-icon" style="border-color:rgba(201,168,76,0.4);color:var(--gold);" onclick="saveBarberPw('${b.id}')" title="Salvar senha">??</button>
+      <button class="btn-icon" onclick="removeBarber('${b.id}')" title="Remover barbeiro">?</button>
     </div>`).join('');
 }
-function saveBarberPw(id){
+async function saveBarberPw(id){
   const pw=document.getElementById('bpw-'+id).value.trim();
-  if(!pw||pw.length<4) return toast('⚠️ Senha muito curta (mín. 4 caracteres)','#e05555');
+  if(!pw||pw.length<4) return toast('?? Senha muito curta (m�n. 4 caracteres)','#e05555');
   const barbers=getBarbers();
-  if(barbers.some(b=>b.id!==id && b.pw===pw)) return toast('⚠️ Essa senha já está em uso por outro barbeiro','#e05555');
+  if(barbers.some(b=>b.id!==id && b.pw===pw)) return toast('?? Essa senha j� est� em uso por outro barbeiro','#e05555');
   const b=barbers.find(x=>x.id===id); if(!b) return;
-  b.pw=pw; localStorage.setItem('bk_barbers',JSON.stringify(barbers));
-  toast('✅ Senha de '+b.name+' atualizada!');
+  const { error }=await db.from('barbers').update({pw}).eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao salvar a senha','#e05555'); }
+  b.pw=pw;
+  toast('? Senha de '+b.name+' atualizada!');
 }
-function removeBarber(id){
+async function removeBarber(id){
   const barbers=getBarbers();
-  if(barbers.length<=1) return toast('⚠️ Precisa ter pelo menos 1 barbeiro','#e05555');
-  if(!confirm('Remover este barbeiro? O acesso (painel) dele deixará de funcionar.')) return;
-  localStorage.setItem('bk_barbers',JSON.stringify(barbers.filter(b=>b.id!==id)));
-  const fmap=JSON.parse(localStorage.getItem('bk_folgas_brb')||'{}');
-  if(fmap[id]){ delete fmap[id]; localStorage.setItem('bk_folgas_brb',JSON.stringify(fmap)); }
+  if(barbers.length<=1) return toast('?? Precisa ter pelo menos 1 barbeiro','#e05555');
+  if(!confirm('Remover este barbeiro? O acesso (painel) dele deixar� de funcionar.')) return;
+  const { error }=await db.from('barbers').delete().eq('id',id);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  await db.from('folgas_barbeiro').delete().eq('barber_id',id);
+  DB.barbers=DB.barbers.filter(b=>b.id!==id);
+  delete DB.folgasBrb[id];
   renderBarbersList(); renderBarberFilter();
   if(document.getElementById('folgas-brb-list')) renderFolgasBarbeiros();
-  toast('🗑️ Barbeiro removido','#888');
+  toast('??? Barbeiro removido','#888');
 }
-function addBarber(){
+async function addBarber(){
   const name=document.getElementById('new-brb-name').value.trim();
-  const emoji=document.getElementById('new-brb-emoji').value.trim()||'✂️';
+  const emoji=document.getElementById('new-brb-emoji').value.trim()||'??';
   const pw=document.getElementById('new-brb-pw').value.trim();
-  if(!name) return toast('⚠️ Digite o nome do barbeiro','#e05555');
-  if(!pw||pw.length<4) return toast('⚠️ Defina uma senha de acesso (mín. 4 caracteres)','#e05555');
+  if(!name) return toast('?? Digite o nome do barbeiro','#e05555');
+  if(!pw||pw.length<4) return toast('?? Defina uma senha de acesso (m�n. 4 caracteres)','#e05555');
   const barbers=getBarbers();
-  if(barbers.some(b=>b.pw===pw)) return toast('⚠️ Essa senha já está em uso por outro barbeiro','#e05555');
-  barbers.push({id:'brb_'+Date.now(),name,emoji,pw});
-  localStorage.setItem('bk_barbers',JSON.stringify(barbers));
+  if(barbers.some(b=>b.pw===pw)) return toast('?? Essa senha j� est� em uso por outro barbeiro','#e05555');
+  const novo={id:'brb_'+Date.now(),name,emoji,pw};
+  const { error }=await db.from('barbers').insert(novo);
+  if(error){ console.error(error); return toast('? Erro ao criar barbeiro','#e05555'); }
+  barbers.push(novo);
   document.getElementById('new-brb-name').value='';
   document.getElementById('new-brb-emoji').value='';
   document.getElementById('new-brb-pw').value='';
   renderBarbersList(); renderBarberFilter();
-  toast('✅ Barbeiro criado! Ele já entra no painel (admin) com essa senha.');
+  toast('? Barbeiro criado! Ele j� entra no painel (admin) com essa senha.');
 }
 
 // ============================================================
 // CONFIG: SENHA DO DONO
 // ============================================================
-function changeOwnerPassword(){
+async function changeOwnerPassword(){
   const pw=document.getElementById('owner-pw').value.trim();
-  if(!pw||pw.length<4) return toast('⚠️ Senha muito curta (mín. 4 caracteres)','#e05555');
-  localStorage.setItem('bk_owner_pw',pw);
+  if(!pw||pw.length<4) return toast('?? Senha muito curta (m�n. 4 caracteres)','#e05555');
+  const { error }=await db.from('config').upsert({key:'owner_pw',value:pw});
+  if(error){ console.error(error); return toast('? Erro ao salvar a senha','#e05555'); }
+  DB.config.owner_pw=pw;
   document.getElementById('owner-pw').value='';
-  toast('✅ Senha do dono alterada!');
+  toast('? Senha do dono alterada!');
 }
 
 // ============================================================
 // CONFIG: FOLGAS
 // ============================================================
-function getFolgas(){ return JSON.parse(localStorage.getItem('bk_folgas')||'[]'); }
+function getFolgas(){ return DB.folgas; }
 function renderFolgas(){
   const folgas=getFolgas().sort();
   const el=document.getElementById('folgas-list');
@@ -612,30 +644,33 @@ function renderFolgas(){
   el.innerHTML=folgas.map(d=>{
     const fmt=new Date(d+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
     return `<div style="display:flex;align-items:center;gap:0.4rem;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.25);border-radius:8px;padding:0.35rem 0.7rem;font-size:0.8rem;">
-      <span>🏖️ ${fmt}</span>
-      <button onclick="removeFolga('${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">✕</button>
+      <span>??? ${fmt}</span>
+      <button onclick="removeFolga('${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">?</button>
     </div>`;
   }).join('');
 }
-function addFolga(){
+async function addFolga(){
   const d=document.getElementById('folga-inp').value;
-  if(!d) return toast('⚠️ Selecione uma data','#e05555');
+  if(!d) return toast('?? Selecione uma data','#e05555');
   const folgas=getFolgas();
-  if(folgas.includes(d)) return toast('⚠️ Essa data já está marcada como folga','#e05555');
-  folgas.push(d);
-  localStorage.setItem('bk_folgas',JSON.stringify(folgas));
+  if(folgas.includes(d)) return toast('?? Essa data j� est� marcada como folga','#e05555');
+  const { error }=await db.from('folgas').insert({date:d});
+  if(error){ console.error(error); return toast('? Erro ao salvar a folga','#e05555'); }
+  DB.folgas.push(d);
   document.getElementById('folga-inp').value='';
   renderFolgas();
-  toast('✅ Folga adicionada! Atualize o site do cliente com F5.');
+  toast('? Folga adicionada!');
 }
-function removeFolga(d){
-  localStorage.setItem('bk_folgas',JSON.stringify(getFolgas().filter(f=>f!==d)));
+async function removeFolga(d){
+  const { error }=await db.from('folgas').delete().eq('date',d);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
+  DB.folgas=DB.folgas.filter(f=>f!==d);
   renderFolgas();
-  toast('🗑️ Folga removida','#888');
+  toast('??? Folga removida','#888');
 }
 
-// ---- Visão das folgas pessoais dos barbeiros ----
-function getFolgasBrbMap(){ return JSON.parse(localStorage.getItem('bk_folgas_brb')||'{}'); }
+// ---- Vis�o das folgas pessoais dos barbeiros ----
+function getFolgasBrbMap(){ return DB.folgasBrb; }
 function renderFolgasBarbeiros(){
   const map=getFolgasBrbMap();
   const barbers=getBarbers();
@@ -645,8 +680,8 @@ function renderFolgasBarbeiros(){
     const chips=folgas.length?folgas.map(d=>{
       const fmt=new Date(d+'T12:00').toLocaleDateString('pt-BR',{weekday:'short',day:'numeric',month:'short'});
       return `<div style="display:flex;align-items:center;gap:0.4rem;background:var(--gold-dim);border:1px solid rgba(201,168,76,0.25);border-radius:8px;padding:0.35rem 0.7rem;font-size:0.8rem;">
-        <span>🏖️ ${fmt}</span>
-        <button onclick="removeFolgaBarbeiro('${b.id}','${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">✕</button>
+        <span>??? ${fmt}</span>
+        <button onclick="removeFolgaBarbeiro('${b.id}','${d}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.85rem;padding:0;line-height:1;" title="Remover">?</button>
       </div>`;
     }).join(''):`<span style="color:var(--muted);font-size:0.8rem;">Nenhuma folga marcada.</span>`;
     return `<div>
@@ -655,22 +690,23 @@ function renderFolgasBarbeiros(){
     </div>`;
   }).join('');
 }
-function removeFolgaBarbeiro(barberId,d){
+async function removeFolgaBarbeiro(barberId,d){
+  const { error }=await db.from('folgas_barbeiro').delete().eq('barber_id',barberId).eq('date',d);
+  if(error){ console.error(error); return toast('? Erro ao remover','#e05555'); }
   const map=getFolgasBrbMap();
   if(map[barberId]){
     map[barberId]=map[barberId].filter(x=>x!==d);
     if(!map[barberId].length) delete map[barberId];
-    localStorage.setItem('bk_folgas_brb',JSON.stringify(map));
   }
   renderFolgasBarbeiros();
-  toast('🗑️ Folga removida','#888');
+  toast('??? Folga removida','#888');
 }
 
 // ============================================================
-// CONFIG: HORÁRIO
+// CONFIG: HOR�RIO
 // ============================================================
 function loadHorarioConfig(){
-  const cfg=JSON.parse(localStorage.getItem('bk_horario')||'null');
+  const cfg=DB.config.horario||null;
   if(cfg){
     document.getElementById('hora-inicio').value=cfg.inicio||'08:00';
     document.getElementById('hora-fim').value=cfg.fim||'18:30';
@@ -678,27 +714,29 @@ function loadHorarioConfig(){
   }
   updateHorarioPreview();
 }
-function saveHorario(){
+async function saveHorario(){
   const inicio=document.getElementById('hora-inicio').value;
   const fim=document.getElementById('hora-fim').value;
   const intervalo=document.getElementById('hora-intervalo').value;
-  if(!inicio||!fim) return toast('⚠️ Preencha os horários','#e05555');
-  if(inicio>=fim) return toast('⚠️ Abertura deve ser antes do fechamento','#e05555');
-  localStorage.setItem('bk_horario',JSON.stringify({inicio,fim,intervalo}));
+  if(!inicio||!fim) return toast('?? Preencha os hor�rios','#e05555');
+  if(inicio>=fim) return toast('?? Abertura deve ser antes do fechamento','#e05555');
+  const { error }=await db.from('config').upsert({key:'horario',value:{inicio,fim,intervalo}});
+  if(error){ console.error(error); return toast('? Erro ao salvar o hor�rio','#e05555'); }
+  DB.config.horario={inicio,fim,intervalo};
   updateHorarioPreview();
-  toast('✅ Horário salvo! Atualize o site do cliente com F5.');
+  toast('? Hor�rio salvo! Atualize o site do cliente com F5.');
 }
 function updateHorarioPreview(){
   const slots=getSlots();
   const el=document.getElementById('horario-preview');
-  if(slots.length) el.textContent=`${slots.length} horários disponíveis: ${slots.slice(0,4).join(', ')}${slots.length>4?' ...':''} até ${slots[slots.length-1]}`;
+  if(slots.length) el.textContent=`${slots.length} hor�rios dispon�veis: ${slots.slice(0,4).join(', ')}${slots.length>4?' ...':''} at� ${slots[slots.length-1]}`;
 }
 document.getElementById('hora-inicio')?.addEventListener('change',updateHorarioPreview);
 document.getElementById('hora-fim')?.addEventListener('change',updateHorarioPreview);
 document.getElementById('hora-intervalo')?.addEventListener('change',updateHorarioPreview);
 
 // ============================================================
-// PÁGINAS
+// P�GINAS
 // ============================================================
 function showPage(p){
   ['agenda','config'].forEach(id=>{
@@ -718,6 +756,9 @@ function showPage(p){
 // ============================================================
 function fmtD(d){return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
 function toast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--success)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// Carrega os dados do banco assim que a pagina abre
+const ready = loadAll();
 </script>
 </body>
 </html>
