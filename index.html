@@ -268,17 +268,26 @@
 const { createClient } = supabase;
 const db = createClient('https://jwftgagragtxfzqoezlx.supabase.co', 'sb_publishable_C0pQFSilHvpAtu4Tm2k6QQ_CyfH3P5-');
 
-// Cache em memoria: carregado 1x quando a pagina abre.
-const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
+// Estado: barbearia identificada pela URL (?loja=slug)
+let BARBEARIA = null;
+function BARB_ID(){ return BARBEARIA ? BARBEARIA.id : null; }
+function getSlug(){ return new URLSearchParams(location.search).get('loja'); }
+const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{} };
 
+// Retorna true se a barbearia foi encontrada; false se o link estiver errado.
 async function loadAll(){
-  const [ap, br, sv, fo, fb, cf] = await Promise.all([
-    db.from('appointments').select('*'),
-    db.from('barbers').select('*'),
-    db.from('services').select('*'),
-    db.from('folgas').select('*'),
-    db.from('folgas_barbeiro').select('*'),
-    db.from('config').select('*')
+  const slug = getSlug();
+  if(!slug) return false;
+  const { data: barb } = await db.from('barbearias').select('*').eq('slug', slug).maybeSingle();
+  if(!barb) return false;
+  BARBEARIA = barb;
+  const bid = barb.id;
+  const [ap, br, sv, fo, fb] = await Promise.all([
+    db.from('appointments').select('*').eq('barbearia_id', bid),
+    db.from('barbers').select('*').eq('barbearia_id', bid),
+    db.from('services').select('*').eq('barbearia_id', bid),
+    db.from('folgas').select('*').eq('barbearia_id', bid),
+    db.from('folgas_barbeiro').select('*').eq('barbearia_id', bid)
   ]);
   DB.appts = (ap.data||[]).map(r=>({
     id:r.id, code:r.code, name:r.name, tel:r.tel,
@@ -292,20 +301,19 @@ async function loadAll(){
   DB.folgas   = (fo.data||[]).map(r=>r.date);
   DB.folgasBrb = {};
   (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
-  DB.config = {};
-  (cf.data||[]).forEach(r=>{ DB.config[r.key] = r.value; });
+  return true;
 }
 
 // ============================================================
 // HELPERS DE DADOS
 // ============================================================
-function getNome(){ return DB.config.nome || 'BarberKing'; }
+function getNome(){ return BARBEARIA ? BARBEARIA.nome : 'Barbearia'; }
 function getServices(){ return DB.services; }
 function getBarbers(){ return DB.barbers; }
 function getAppts(){ return DB.appts; }
 
 function getSlots(){
-  const cfg = DB.config.horario || null;
+  const cfg = (BARBEARIA && BARBEARIA.horario) || null;
   if(!cfg) return ALL_SLOTS_DEFAULT;
   const slots=[];
   let [h,m]=cfg.inicio.split(':').map(Number);
@@ -486,7 +494,7 @@ async function agendar(){
   };
 
   const { error }=await db.from('appointments').insert({
-    id:appt.id, code:appt.code, name:appt.name, tel:appt.tel,
+    barbearia_id:BARB_ID(), id:appt.id, code:appt.code, name:appt.name, tel:appt.tel,
     services:appt.services, service_ids:appt.serviceIds,
     barber:appt.barber, barber_id:appt.barberId,
     date:appt.date, slot:appt.slot, total:appt.total,
@@ -555,7 +563,7 @@ async function cancelarPorCodigo(){
   const appt=appts[idx];
   const dataFmt=new Date(appt.date+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long'});
   if(!confirm(`Cancelar agendamento de ${appt.name} em ${dataFmt} às ${appt.slot}?`)) return;
-  const { error }=await db.from('appointments').delete().eq('id',appt.id);
+  const { error }=await db.from('appointments').delete().eq('barbearia_id',BARB_ID()).eq('id',appt.id);
   if(error){ console.error(error); return showToast('❌ Erro ao cancelar. Tente de novo.','#e05555'); }
   appts.splice(idx,1);
   document.getElementById('cancel-code-inp').value='';
@@ -583,10 +591,15 @@ function showToast(msg,color){ const t=document.getElementById('toast'); t.textC
 function shake(id,msg){ const el=document.getElementById(id); el.style.borderColor='var(--danger)'; setTimeout(()=>el.style.borderColor='',800); showToast('⚠️ '+msg,'#e05555'); }
 
 // INIT
-loadAll().then(()=>{
+loadAll().then(ok=>{
+  if(!ok){ return mostrarLojaNaoEncontrada(); }
   applyNome();
   renderSvcs(); renderBrbs(); renderCal();
 }).catch(e=>{ console.error(e); alert('Erro ao conectar no banco de dados. Recarregue a pagina (F5).'); });
+
+function mostrarLojaNaoEncontrada(){
+  document.body.innerHTML='<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:2rem;font-family:sans-serif;background:#0d0d0d;color:#c9a24a;"><div><div style="font-size:3rem;margin-bottom:1rem">💈</div><h2>Barbearia não encontrada</h2><p style="color:#888;margin-top:0.6rem">Confira o link de agendamento com a sua barbearia.</p></div></div>';
+}
 </script>
 </body>
 </html>

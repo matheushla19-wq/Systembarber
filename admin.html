@@ -227,17 +227,26 @@
 const { createClient } = supabase;
 const db = createClient('https://jwftgagragtxfzqoezlx.supabase.co', 'sb_publishable_C0pQFSilHvpAtu4Tm2k6QQ_CyfH3P5-');
 
-// Cache em memoria: carregado 1x quando a pagina abre.
-const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
+// Estado: barbearia identificada pela URL (?loja=slug)
+let BARBEARIA = null;
+function BARB_ID(){ return BARBEARIA ? BARBEARIA.id : null; }
+function getSlug(){ return new URLSearchParams(location.search).get('loja'); }
+const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{} };
 
+// Retorna true se a barbearia foi encontrada; false se o link estiver errado.
 async function loadAll(){
-  const [ap, br, sv, fo, fb, cf] = await Promise.all([
-    db.from('appointments').select('*'),
-    db.from('barbers').select('*'),
-    db.from('services').select('*'),
-    db.from('folgas').select('*'),
-    db.from('folgas_barbeiro').select('*'),
-    db.from('config').select('*')
+  const slug = getSlug();
+  if(!slug) return false;
+  const { data: barb } = await db.from('barbearias').select('*').eq('slug', slug).maybeSingle();
+  if(!barb) return false;
+  BARBEARIA = barb;
+  const bid = barb.id;
+  const [ap, br, sv, fo, fb] = await Promise.all([
+    db.from('appointments').select('*').eq('barbearia_id', bid),
+    db.from('barbers').select('*').eq('barbearia_id', bid),
+    db.from('services').select('*').eq('barbearia_id', bid),
+    db.from('folgas').select('*').eq('barbearia_id', bid),
+    db.from('folgas_barbeiro').select('*').eq('barbearia_id', bid)
   ]);
   DB.appts = (ap.data||[]).map(r=>({
     id:r.id, code:r.code, name:r.name, tel:r.tel,
@@ -251,8 +260,7 @@ async function loadAll(){
   DB.folgas   = (fo.data||[]).map(r=>r.date);
   DB.folgasBrb = {};
   (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
-  DB.config = {};
-  (cf.data||[]).forEach(r=>{ DB.config[r.key] = r.value; });
+  return true;
 }
 
 // ============================================================
@@ -260,7 +268,7 @@ async function loadAll(){
 // ============================================================
 function getBarbers(){return DB.barbers;}
 function getAppts(){return DB.appts;}
-function getNome(){return DB.config.nome||'BarberKing';}
+function getNome(){return BARBEARIA?BARBEARIA.nome:'Barbearia';}
 
 // Garante que todo barbeiro tenha uma senha (compatibilidade com dados antigos)
 function migrateBarbers(){ /* nao e mais necessario com o banco de dados */ }
@@ -273,7 +281,8 @@ let currentBarberName='';
 // LOGIN (pela senha do próprio barbeiro)
 // ============================================================
 async function doLogin(){
-  await ready;
+  const ok=await ready;
+  if(!ok){ document.getElementById('login-err').textContent='Barbearia não encontrada. Confira o link.'; document.getElementById('login-err').style.display='block'; return; }
   const typed=document.getElementById('pw-input').value;
   const me=getBarbers().find(b=>b.pw && b.pw===typed);
   if(me){
@@ -401,7 +410,7 @@ function renderAgenda(){
 
 async function delAppt(id){
   if(!confirm('Cancelar este agendamento?')) return;
-  const { error }=await db.from('appointments').delete().eq('id',id);
+  const { error }=await db.from('appointments').delete().eq('barbearia_id',BARB_ID()).eq('id',id);
   if(error){ console.error(error); return toast('❌ Erro ao cancelar','#e05555'); }
   DB.appts=DB.appts.filter(a=>a.id!==id);
   renderStats(); renderAgenda(); toast('🗑️ Agendamento cancelado','#888');
@@ -424,7 +433,7 @@ async function changePassword(){
   // evita que a nova senha seja igual à de outro barbeiro
   if(barbers.some(b=>b.id!==currentBarberId && b.pw===pw))
     return toast('⚠️ Essa senha já está em uso por outro barbeiro','#e05555');
-  const { error }=await db.from('barbers').update({pw}).eq('id',currentBarberId);
+  const { error }=await db.from('barbers').update({pw}).eq('barbearia_id',BARB_ID()).eq('id',currentBarberId);
   if(error){ console.error(error); return toast('❌ Erro ao salvar a senha','#e05555'); }
   me.pw=pw;
   document.getElementById('new-pw').value='';
@@ -455,7 +464,7 @@ async function addMinhaFolga(){
   if(!d) return toast('⚠️ Selecione uma data','#e05555');
   const folgas=getMinhasFolgas();
   if(folgas.includes(d)) return toast('⚠️ Essa data já está marcada como folga','#e05555');
-  const { error }=await db.from('folgas_barbeiro').insert({barber_id:currentBarberId,date:d});
+  const { error }=await db.from('folgas_barbeiro').insert({barbearia_id:BARB_ID(),barber_id:currentBarberId,date:d});
   if(error){ console.error(error); return toast('❌ Erro ao salvar a folga','#e05555'); }
   (DB.folgasBrb[currentBarberId]=DB.folgasBrb[currentBarberId]||[]).push(d);
   document.getElementById('folga-inp').value='';
@@ -463,7 +472,7 @@ async function addMinhaFolga(){
   toast('✅ Folga adicionada!');
 }
 async function removeMinhaFolga(d){
-  const { error }=await db.from('folgas_barbeiro').delete().eq('barber_id',currentBarberId).eq('date',d);
+  const { error }=await db.from('folgas_barbeiro').delete().eq('barbearia_id',BARB_ID()).eq('barber_id',currentBarberId).eq('date',d);
   if(error){ console.error(error); return toast('❌ Erro ao remover','#e05555'); }
   DB.folgasBrb[currentBarberId]=getMinhasFolgas().filter(f=>f!==d);
   renderMinhasFolgas();
@@ -490,6 +499,13 @@ function toast(msg,color){const t=document.getElementById('toast');t.textContent
 
 // Carrega os dados do banco assim que a pagina abre
 const ready = loadAll();
+ready.then(ok=>{
+  if(ok){ applyLogos(); }
+  else {
+    document.getElementById('login-err').textContent='Barbearia não encontrada. Confira o link.';
+    document.getElementById('login-err').style.display='block';
+  }
+});
 </script>
 </body>
 </html>
