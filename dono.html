@@ -144,14 +144,28 @@
 </head>
 <body>
 
-<!-- LOGIN -->
-<div class="login-wrap" id="login-wrap">
+<!-- LOGIN / CADASTRO -->
+<div class="login-wrap" id="login-wrap" style="display:none">
   <div class="login-box">
-    <div class="login-logo logo-nome">BarberKing</div>
-    <div class="login-sub">Painel do Dono 👑</div>
-    <input type="password" id="pw-input" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')doLogin()"/>
-    <div class="login-err" id="login-err">Senha incorreta. Tente novamente.</div>
-    <button class="btn-login" onclick="doLogin()">Entrar</button>
+    <div class="login-logo">💈 Painel do Dono</div>
+    <div class="login-sub">Entre ou crie sua conta 👑</div>
+    <input type="email" id="email-input" placeholder="Seu email" style="text-align:left;letter-spacing:0;"/>
+    <input type="password" id="senha-input" placeholder="Sua senha (mín. 6)" style="text-align:left;letter-spacing:0;" onkeydown="if(event.key==='Enter')fazerLogin()"/>
+    <div class="login-err" id="auth-msg" style="display:none"></div>
+    <button class="btn-login" onclick="fazerLogin()">Entrar</button>
+    <button class="btn-login" style="background:none;border:1px solid var(--gold);color:var(--gold);margin-top:0.6rem;" onclick="fazerCadastro()">Criar conta</button>
+  </div>
+</div>
+
+<!-- ONBOARDING: criar barbearia -->
+<div class="login-wrap" id="onboarding-wrap" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">🎉 Quase lá!</div>
+    <div class="login-sub">Crie a sua barbearia</div>
+    <input type="text" id="onb-nome" placeholder="Nome da barbearia" style="text-align:left;letter-spacing:0;"/>
+    <input type="text" id="onb-slug" placeholder="link (ex: barbearia-do-joao)" style="text-align:left;letter-spacing:0;"/>
+    <div class="login-err" id="onb-msg" style="display:none"></div>
+    <button class="btn-login" onclick="criarBarbearia()">Criar barbearia</button>
   </div>
 </div>
 
@@ -229,13 +243,30 @@
         </div>
       </div>
 
-      <!-- SENHA DO DONO -->
+      <!-- MINHA CONTA -->
       <div class="card">
-        <div class="card-title"><span class="ico">👑</span> Senha do dono</div>
-        <p class="section-label" style="margin-bottom:0.8rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Esta é a senha que abre este painel do dono.</p>
+        <div class="card-title"><span class="ico">👑</span> Minha conta</div>
+        <p class="section-label" style="margin-bottom:0.7rem;text-transform:none;letter-spacing:0;font-size:0.8rem;">Email: <b id="conta-email">—</b></p>
+        <p class="section-label">Trocar senha de acesso</p>
         <div class="pw-row">
-          <input type="password" id="owner-pw" placeholder="Nova senha do dono (mín. 4 caracteres)" onkeydown="if(event.key==='Enter')changeOwnerPassword()"/>
-          <button class="btn-add" onclick="changeOwnerPassword()">Salvar</button>
+          <input type="password" id="conta-senha" placeholder="Nova senha (mín. 6 caracteres)" onkeydown="if(event.key==='Enter')mudarSenhaConta()"/>
+          <button class="btn-add" onclick="mudarSenhaConta()">Salvar</button>
+        </div>
+      </div>
+
+      <!-- LINKS DA BARBEARIA -->
+      <div class="card">
+        <div class="card-title"><span class="ico">🔗</span> Links da sua barbearia</div>
+        <p class="section-label" style="margin-bottom:0.6rem;text-transform:none;letter-spacing:0;font-size:0.78rem;">Divulgue para seus clientes e barbeiros.</p>
+        <p class="section-label" style="margin-bottom:0.2rem">Link do cliente (agendamento)</p>
+        <div class="pw-row" style="margin-bottom:0.8rem">
+          <input type="text" id="link-cliente" readonly style="font-size:0.72rem"/>
+          <button class="btn-add" onclick="copiar(document.getElementById('link-cliente').value)">Copiar</button>
+        </div>
+        <p class="section-label" style="margin-bottom:0.2rem">Link do barbeiro (painel)</p>
+        <div class="pw-row">
+          <input type="text" id="link-barbeiro" readonly style="font-size:0.72rem"/>
+          <button class="btn-add" onclick="copiar(document.getElementById('link-barbeiro').value)">Copiar</button>
         </div>
       </div>
 
@@ -298,17 +329,19 @@
 const { createClient } = supabase;
 const db = createClient('https://jwftgagragtxfzqoezlx.supabase.co', 'sb_publishable_C0pQFSilHvpAtu4Tm2k6QQ_CyfH3P5-');
 
-// Cache em memoria: carregado 1x quando a pagina abre.
-const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{}, config:{} };
+// Estado: barbearia do dono logado + cache em memoria
+let BARBEARIA = null;                 // {id, slug, nome, horario}
+function BARB_ID(){ return BARBEARIA ? BARBEARIA.id : null; }
+const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{} };
 
 async function loadAll(){
-  const [ap, br, sv, fo, fb, cf] = await Promise.all([
-    db.from('appointments').select('*'),
-    db.from('barbers').select('*'),
-    db.from('services').select('*'),
-    db.from('folgas').select('*'),
-    db.from('folgas_barbeiro').select('*'),
-    db.from('config').select('*')
+  const bid = BARB_ID();
+  const [ap, br, sv, fo, fb] = await Promise.all([
+    db.from('appointments').select('*').eq('barbearia_id', bid),
+    db.from('barbers').select('*').eq('barbearia_id', bid),
+    db.from('services').select('*').eq('barbearia_id', bid),
+    db.from('folgas').select('*').eq('barbearia_id', bid),
+    db.from('folgas_barbeiro').select('*').eq('barbearia_id', bid)
   ]);
   DB.appts = (ap.data||[]).map(r=>({
     id:r.id, code:r.code, name:r.name, tel:r.tel,
@@ -322,8 +355,6 @@ async function loadAll(){
   DB.folgas   = (fo.data||[]).map(r=>r.date);
   DB.folgasBrb = {};
   (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
-  DB.config = {};
-  (cf.data||[]).forEach(r=>{ DB.config[r.key] = r.value; });
 }
 
 // ============================================================
@@ -332,14 +363,10 @@ async function loadAll(){
 function getServices(){return DB.services;}
 function getBarbers(){return DB.barbers;}
 function getAppts(){return DB.appts;}
-function getOwnerPw(){return DB.config.owner_pw||'dono123';}
-function getNome(){return DB.config.nome||'BarberKing';}
-
-// Garante que todo barbeiro tenha uma senha (compatibilidade com dados antigos)
-function migrateBarbers(){ /* nao e mais necessario com o banco de dados */ }
+function getNome(){return BARBEARIA?BARBEARIA.nome:'Barbearia';}
 
 function getSlots(){
-  const cfg=DB.config.horario||null;
+  const cfg=(BARBEARIA&&BARBEARIA.horario)||null;
   if(!cfg) return ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30'];
   const slots=[];
   let [h,m]=cfg.inicio.split(':').map(Number);
@@ -355,29 +382,109 @@ function getSlots(){
 // ============================================================
 // LOGIN (senha do dono)
 // ============================================================
-async function doLogin(){
-  await ready;
-  if(document.getElementById('pw-input').value===getOwnerPw()){
-    document.getElementById('login-wrap').style.display='none';
-    document.getElementById('app').style.display='block';
-    initApp();
-  } else {
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('pw-input').value='';
-  }
+function authMsg(m,err){ const el=document.getElementById('auth-msg'); el.textContent=m; el.style.color=err?'var(--danger)':'var(--success)'; el.style.display='block'; }
+function onbMsg(m,err){ const el=document.getElementById('onb-msg'); el.textContent=m; el.style.color=err?'var(--danger)':'var(--success)'; el.style.display='block'; }
+
+async function fazerCadastro(){
+  const email=document.getElementById('email-input').value.trim();
+  const pw=document.getElementById('senha-input').value;
+  if(!email||pw.length<6) return authMsg('Informe um email e uma senha de 6+ caracteres.',true);
+  const { error }=await db.auth.signUp({ email, password:pw, options:{ emailRedirectTo: location.origin+'/dono.html' } });
+  if(error){ console.error(error); return authMsg('Erro: '+error.message,true); }
+  authMsg('✅ Conta criada! Enviamos um email de confirmacao. Confirme e depois entre.',false);
 }
-function sair(){
-  document.getElementById('app').style.display='none';
-  document.getElementById('login-wrap').style.display='flex';
-  document.getElementById('pw-input').value='';
-  document.getElementById('login-err').style.display='none';
+async function fazerLogin(){
+  const email=document.getElementById('email-input').value.trim();
+  const pw=document.getElementById('senha-input').value;
+  if(!email||!pw) return authMsg('Preencha email e senha.',true);
+  const { error }=await db.auth.signInWithPassword({ email, password:pw });
+  if(error){ console.error(error); return authMsg('Email/senha incorretos, ou email ainda nao confirmado.',true); }
+}
+async function sair(){ await db.auth.signOut(); location.reload(); }
+
+async function carregarBarbearia(){
+  const { data:{ user } }=await db.auth.getUser();
+  if(!user) return null;
+  const { data }=await db.from('barbearias').select('*').eq('dono_id', user.id).maybeSingle();
+  return data||null;
+}
+
+async function criarBarbearia(){
+  const nome=document.getElementById('onb-nome').value.trim();
+  let slug=document.getElementById('onb-slug').value.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+  if(!nome) return onbMsg('Digite o nome da barbearia.',true);
+  if(!slug) return onbMsg('Digite um link valido (letras, numeros e hifens).',true);
+  const { data:{ user } }=await db.auth.getUser();
+  const { data, error }=await db.from('barbearias').insert({ dono_id:user.id, slug, nome }).select().single();
+  if(error){
+    console.error(error);
+    if(error.code==='23505'||(error.message||'').toLowerCase().includes('duplicate'))
+      return onbMsg('Esse link ja esta em uso. Tente outro.',true);
+    return onbMsg('Erro ao criar: '+error.message,true);
+  }
+  BARBEARIA=data;
+  await semearPadrao();
+  await iniciarApp();
+}
+
+async function semearPadrao(){
+  const bid=BARB_ID();
+  const servicos=[
+    {id:'corte',name:'Corte',price:25,time:30},
+    {id:'corte_sobr',name:'Corte + Sobrancelha',price:30,time:40},
+    {id:'corte_luzes',name:'Corte + Luzes',price:70,time:90},
+    {id:'corte_pigm',name:'Corte + Pigmentação',price:45,time:50},
+    {id:'corte_barba',name:'Corte + Barba',price:35,time:50},
+    {id:'corte_nevou',name:'Corte + Nevou',price:100,time:90},
+    {id:'corte_pigm_sb',name:'Corte + Pigmentação + Sobrancelha',price:50,time:60},
+    {id:'corte_luz_sb',name:'Corte + Luzes + Sobrancelha',price:75,time:100},
+    {id:'luzes',name:'Luzes',price:45,time:60},
+    {id:'pigmentacao',name:'Pigmentação',price:20,time:30},
+    {id:'sobrancelha',name:'Sobrancelha',price:10,time:10},
+    {id:'barba',name:'Barba',price:10,time:20},
+    {id:'matizar',name:'Matizar',price:10,time:20},
+    {id:'rosa_azul',name:'Pintar Rosa ou Azul',price:35,time:60}
+  ].map(s=>({ barbearia_id:bid, id:s.id, name:s.name, price:s.price, time:s.time }));
+  await db.from('services').insert(servicos);
+  await db.from('barbers').insert({ barbearia_id:bid, id:'vinicius', name:'Vinícius', emoji:'✂️', pw:'1234' });
+}
+
+let _booting=false;
+async function bootstrap(){
+  if(_booting) return; _booting=true;
+  try{
+    const { data:{ session } }=await db.auth.getSession();
+    if(!session){
+      document.getElementById('app').style.display='none';
+      document.getElementById('onboarding-wrap').style.display='none';
+      document.getElementById('login-wrap').style.display='flex';
+      return;
+    }
+    BARBEARIA=await carregarBarbearia();
+    if(!BARBEARIA){
+      document.getElementById('login-wrap').style.display='none';
+      document.getElementById('app').style.display='none';
+      document.getElementById('onboarding-wrap').style.display='flex';
+    } else {
+      await iniciarApp();
+    }
+  } finally { _booting=false; }
+}
+
+async function iniciarApp(){
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('onboarding-wrap').style.display='none';
+  document.getElementById('app').style.display='block';
+  await loadAll();
+  initApp();
+  mostrarEmailConta();
+  mostrarLinks();
 }
 
 // ============================================================
 // INIT
 // ============================================================
 function initApp(){
-  migrateBarbers();
   applyLogos();
   renderStats();
   renderAgenda();
@@ -496,7 +603,7 @@ function renderAgenda(){
 
 async function delAppt(id){
   if(!confirm('Cancelar este agendamento?')) return;
-  const { error }=await db.from('appointments').delete().eq('id',id);
+  const { error }=await db.from('appointments').delete().eq('barbearia_id',BARB_ID()).eq('id',id);
   if(error){ console.error(error); return toast('❌ Erro ao cancelar','#e05555'); }
   DB.appts=DB.appts.filter(a=>a.id!==id);
   renderStats(); renderAgenda(); toast('🗑️ Agendamento cancelado','#888');
@@ -514,9 +621,9 @@ function clearFilters(){
 async function saveNome(){
   const n=document.getElementById('inp-nome-barbearia').value.trim();
   if(!n) return toast('⚠️ Digite o nome','#e05555');
-  const { error }=await db.from('config').upsert({key:'nome',value:n});
+  const { error }=await db.from('barbearias').update({nome:n}).eq('id',BARB_ID());
   if(error){ console.error(error); return toast('❌ Erro ao salvar o nome','#e05555'); }
-  DB.config.nome=n;
+  BARBEARIA.nome=n;
   applyLogos();
   toast('✅ Nome salvo! Atualize os outros sites com F5.');
 }
@@ -535,13 +642,13 @@ function renderServicesList(){
 async function saveServicePrices(){
   const svcs=getServices();
   svcs.forEach(s=>{ const i=document.getElementById('price-'+s.id); if(i) s.price=parseInt(i.value)||s.price; });
-  const { error }=await db.from('services').upsert(svcs);
+  const { error }=await db.from('services').upsert(svcs,{onConflict:'barbearia_id,id'});
   if(error){ console.error(error); return toast('❌ Erro ao salvar os preços','#e05555'); }
   toast('✅ Preços atualizados!');
 }
 async function removeService(id){
   if(!confirm('Remover este serviço?')) return;
-  const { error }=await db.from('services').delete().eq('id',id);
+  const { error }=await db.from('services').delete().eq('barbearia_id',BARB_ID()).eq('id',id);
   if(error){ console.error(error); return toast('❌ Erro ao remover','#e05555'); }
   DB.services=DB.services.filter(s=>s.id!==id);
   renderServicesList(); toast('🗑️ Serviço removido','#888');
@@ -551,7 +658,7 @@ async function addService(){
   const price=parseInt(document.getElementById('new-svc-price').value)||0;
   const time=parseInt(document.getElementById('new-svc-time').value)||30;
   if(!name) return toast('⚠️ Digite o nome do serviço','#e05555');
-  const novo={id:'svc_'+Date.now(),name,price,time};
+  const novo={barbearia_id:BARB_ID(),id:'svc_'+Date.now(),name,price,time};
   const { error }=await db.from('services').insert(novo);
   if(error){ console.error(error); return toast('❌ Erro ao adicionar','#e05555'); }
   DB.services.push(novo);
@@ -580,7 +687,7 @@ async function saveBarberPw(id){
   const barbers=getBarbers();
   if(barbers.some(b=>b.id!==id && b.pw===pw)) return toast('⚠️ Essa senha já está em uso por outro barbeiro','#e05555');
   const b=barbers.find(x=>x.id===id); if(!b) return;
-  const { error }=await db.from('barbers').update({pw}).eq('id',id);
+  const { error }=await db.from('barbers').update({pw}).eq('barbearia_id',BARB_ID()).eq('id',id);
   if(error){ console.error(error); return toast('❌ Erro ao salvar a senha','#e05555'); }
   b.pw=pw;
   toast('✅ Senha de '+b.name+' atualizada!');
@@ -589,9 +696,9 @@ async function removeBarber(id){
   const barbers=getBarbers();
   if(barbers.length<=1) return toast('⚠️ Precisa ter pelo menos 1 barbeiro','#e05555');
   if(!confirm('Remover este barbeiro? O acesso (painel) dele deixará de funcionar.')) return;
-  const { error }=await db.from('barbers').delete().eq('id',id);
+  const { error }=await db.from('barbers').delete().eq('barbearia_id',BARB_ID()).eq('id',id);
   if(error){ console.error(error); return toast('❌ Erro ao remover','#e05555'); }
-  await db.from('folgas_barbeiro').delete().eq('barber_id',id);
+  await db.from('folgas_barbeiro').delete().eq('barbearia_id',BARB_ID()).eq('barber_id',id);
   DB.barbers=DB.barbers.filter(b=>b.id!==id);
   delete DB.folgasBrb[id];
   renderBarbersList(); renderBarberFilter();
@@ -606,7 +713,7 @@ async function addBarber(){
   if(!pw||pw.length<4) return toast('⚠️ Defina uma senha de acesso (mín. 4 caracteres)','#e05555');
   const barbers=getBarbers();
   if(barbers.some(b=>b.pw===pw)) return toast('⚠️ Essa senha já está em uso por outro barbeiro','#e05555');
-  const novo={id:'brb_'+Date.now(),name,emoji,pw};
+  const novo={barbearia_id:BARB_ID(),id:'brb_'+Date.now(),name,emoji,pw};
   const { error }=await db.from('barbers').insert(novo);
   if(error){ console.error(error); return toast('❌ Erro ao criar barbeiro','#e05555'); }
   barbers.push(novo);
@@ -620,15 +727,23 @@ async function addBarber(){
 // ============================================================
 // CONFIG: SENHA DO DONO
 // ============================================================
-async function changeOwnerPassword(){
-  const pw=document.getElementById('owner-pw').value.trim();
-  if(!pw||pw.length<4) return toast('⚠️ Senha muito curta (mín. 4 caracteres)','#e05555');
-  const { error }=await db.from('config').upsert({key:'owner_pw',value:pw});
-  if(error){ console.error(error); return toast('❌ Erro ao salvar a senha','#e05555'); }
-  DB.config.owner_pw=pw;
-  document.getElementById('owner-pw').value='';
-  toast('✅ Senha do dono alterada!');
+async function mudarSenhaConta(){
+  const pw=document.getElementById('conta-senha').value;
+  if(pw.length<6) return toast('⚠️ Senha de 6+ caracteres','#e05555');
+  const { error }=await db.auth.updateUser({ password:pw });
+  if(error){ console.error(error); return toast('❌ '+error.message,'#e05555'); }
+  document.getElementById('conta-senha').value='';
+  toast('✅ Senha da conta alterada!');
 }
+function mostrarEmailConta(){
+  db.auth.getUser().then(({data:{user}})=>{ if(user) document.getElementById('conta-email').textContent=user.email; });
+}
+function mostrarLinks(){
+  const base=location.origin;
+  document.getElementById('link-cliente').value=base+'/index.html?loja='+BARBEARIA.slug;
+  document.getElementById('link-barbeiro').value=base+'/admin.html?loja='+BARBEARIA.slug;
+}
+function copiar(t){ navigator.clipboard.writeText(t).then(()=>toast('✅ Copiado!')); }
 
 // ============================================================
 // CONFIG: FOLGAS
@@ -654,7 +769,7 @@ async function addFolga(){
   if(!d) return toast('⚠️ Selecione uma data','#e05555');
   const folgas=getFolgas();
   if(folgas.includes(d)) return toast('⚠️ Essa data já está marcada como folga','#e05555');
-  const { error }=await db.from('folgas').insert({date:d});
+  const { error }=await db.from('folgas').insert({barbearia_id:BARB_ID(),date:d});
   if(error){ console.error(error); return toast('❌ Erro ao salvar a folga','#e05555'); }
   DB.folgas.push(d);
   document.getElementById('folga-inp').value='';
@@ -662,7 +777,7 @@ async function addFolga(){
   toast('✅ Folga adicionada!');
 }
 async function removeFolga(d){
-  const { error }=await db.from('folgas').delete().eq('date',d);
+  const { error }=await db.from('folgas').delete().eq('barbearia_id',BARB_ID()).eq('date',d);
   if(error){ console.error(error); return toast('❌ Erro ao remover','#e05555'); }
   DB.folgas=DB.folgas.filter(f=>f!==d);
   renderFolgas();
@@ -691,7 +806,7 @@ function renderFolgasBarbeiros(){
   }).join('');
 }
 async function removeFolgaBarbeiro(barberId,d){
-  const { error }=await db.from('folgas_barbeiro').delete().eq('barber_id',barberId).eq('date',d);
+  const { error }=await db.from('folgas_barbeiro').delete().eq('barbearia_id',BARB_ID()).eq('barber_id',barberId).eq('date',d);
   if(error){ console.error(error); return toast('❌ Erro ao remover','#e05555'); }
   const map=getFolgasBrbMap();
   if(map[barberId]){
@@ -706,7 +821,7 @@ async function removeFolgaBarbeiro(barberId,d){
 // CONFIG: HORÁRIO
 // ============================================================
 function loadHorarioConfig(){
-  const cfg=DB.config.horario||null;
+  const cfg=(BARBEARIA&&BARBEARIA.horario)||null;
   if(cfg){
     document.getElementById('hora-inicio').value=cfg.inicio||'08:00';
     document.getElementById('hora-fim').value=cfg.fim||'18:30';
@@ -720,9 +835,9 @@ async function saveHorario(){
   const intervalo=document.getElementById('hora-intervalo').value;
   if(!inicio||!fim) return toast('⚠️ Preencha os horários','#e05555');
   if(inicio>=fim) return toast('⚠️ Abertura deve ser antes do fechamento','#e05555');
-  const { error }=await db.from('config').upsert({key:'horario',value:{inicio,fim,intervalo}});
+  const { error }=await db.from('barbearias').update({horario:{inicio,fim,intervalo}}).eq('id',BARB_ID());
   if(error){ console.error(error); return toast('❌ Erro ao salvar o horário','#e05555'); }
-  DB.config.horario={inicio,fim,intervalo};
+  BARBEARIA.horario={inicio,fim,intervalo};
   updateHorarioPreview();
   toast('✅ Horário salvo! Atualize o site do cliente com F5.');
 }
@@ -757,8 +872,12 @@ function showPage(p){
 function fmtD(d){return d.getFullYear()+'-'+(d.getMonth()+1).toString().padStart(2,'0')+'-'+d.getDate().toString().padStart(2,'0');}
 function toast(msg,color){const t=document.getElementById('toast');t.textContent=msg;t.style.background=color||'var(--success)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
 
-// Carrega os dados do banco assim que a pagina abre
-const ready = loadAll();
+// Reage a login/logout e inicia
+db.auth.onAuthStateChange((event)=>{
+  if(event==='SIGNED_IN') bootstrap();
+  if(event==='SIGNED_OUT') location.reload();
+});
+bootstrap();
 </script>
 </body>
 </html>
