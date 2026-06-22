@@ -272,35 +272,29 @@ const db = createClient('https://jwftgagragtxfzqoezlx.supabase.co', 'sb_publisha
 let BARBEARIA = null;
 function BARB_ID(){ return BARBEARIA ? BARBEARIA.id : null; }
 function getSlug(){ return new URLSearchParams(location.search).get('loja'); }
-const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{} };
+const DB = { barbers:[], services:[], folgas:[], folgasBrb:{}, taken:[] };
 
 // Retorna true se a barbearia foi encontrada; false se o link estiver errado.
 async function loadAll(){
   const slug = getSlug();
   if(!slug) return false;
-  const { data: barb } = await db.from('barbearias').select('*').eq('slug', slug).maybeSingle();
+  const { data: barb } = await db.from('barbearias_public').select('*').eq('slug', slug).maybeSingle();
   if(!barb) return false;
   BARBEARIA = barb;
   const bid = barb.id;
-  const [ap, br, sv, fo, fb] = await Promise.all([
-    db.from('appointments').select('*').eq('barbearia_id', bid),
-    db.from('barbers').select('*').eq('barbearia_id', bid),
+  const [sv, fo, fb, br, oc] = await Promise.all([
     db.from('services').select('*').eq('barbearia_id', bid),
     db.from('folgas').select('*').eq('barbearia_id', bid),
-    db.from('folgas_barbeiro').select('*').eq('barbearia_id', bid)
+    db.from('folgas_barbeiro').select('*').eq('barbearia_id', bid),
+    db.from('barbers_public').select('*').eq('barbearia_id', bid),
+    db.rpc('ocupados_todos', { p_slug: slug })
   ]);
-  DB.appts = (ap.data||[]).map(r=>({
-    id:r.id, code:r.code, name:r.name, tel:r.tel,
-    services:r.services||[], serviceIds:r.service_ids||[],
-    barber:r.barber, barberId:r.barber_id,
-    date:r.date, slot:r.slot, total:r.total,
-    pagamento:r.pagamento, createdAt:r.created_at
-  }));
-  DB.barbers  = br.data||[];
   DB.services = sv.data||[];
   DB.folgas   = (fo.data||[]).map(r=>r.date);
   DB.folgasBrb = {};
   (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
+  DB.barbers  = br.data||[];
+  DB.taken    = oc.data||[];
   return true;
 }
 
@@ -310,7 +304,7 @@ async function loadAll(){
 function getNome(){ return BARBEARIA ? BARBEARIA.nome : 'Barbearia'; }
 function getServices(){ return DB.services; }
 function getBarbers(){ return DB.barbers; }
-function getAppts(){ return DB.appts; }
+/* o cliente nao carrega mais os agendamentos completos (privacidade) */
 
 function getSlots(){
   const cfg = (BARBEARIA && BARBEARIA.horario) || null;
@@ -363,7 +357,7 @@ function renderBrbs(){
 }
 
 function getTakenSlots(date, barberId){
-  return getAppts().filter(a=>a.date===date&&(!barberId||a.barberId===barberId)).map(a=>a.slot);
+  return DB.taken.filter(t=>t.date===date&&(!barberId||t.barber_id===barberId)).map(t=>t.slot);
 }
 
 function isDayFull(date){
@@ -493,15 +487,23 @@ async function agendar(){
     createdAt:new Date().toISOString()
   };
 
-  const { error }=await db.from('appointments').insert({
-    barbearia_id:BARB_ID(), id:appt.id, code:appt.code, name:appt.name, tel:appt.tel,
-    services:appt.services, service_ids:appt.serviceIds,
-    barber:appt.barber, barber_id:appt.barberId,
-    date:appt.date, slot:appt.slot, total:appt.total,
-    pagamento:appt.pagamento, created_at:appt.createdAt
+  const { data:newId, error }=await db.rpc('criar_agendamento',{
+    p_slug:getSlug(), p_code:appt.code, p_name:appt.name, p_tel:appt.tel,
+    p_services:appt.services, p_service_ids:appt.serviceIds,
+    p_barber:appt.barber, p_barber_id:appt.barberId,
+    p_date:appt.date, p_slot:appt.slot, p_total:appt.total, p_pagamento:appt.pagamento
   });
-  if(error){ console.error(error); return showToast('❌ Erro ao salvar o agendamento. Tente de novo.','#e05555'); }
-  DB.appts.push(appt);
+  if(error){
+    console.error(error);
+    if((error.message||'').includes('horario ja ocupado')){
+      DB.taken.push({date:appt.date, barber_id:appt.barberId, slot:appt.slot});
+      renderSlots();
+      return showToast('⚠️ Esse horário acabou de ser reservado. Escolha outro.','#e05555');
+    }
+    return showToast('❌ Erro ao salvar o agendamento. Tente de novo.','#e05555');
+  }
+  appt.id=newId;
+  DB.taken.push({date:appt.date, barber_id:appt.barberId, slot:appt.slot});
 
   lastApptId=appt.id; lastApptCode=code;
 
@@ -557,16 +559,13 @@ function voltarInicio(){
 async function cancelarPorCodigo(){
   const code=document.getElementById('cancel-code-inp').value.trim().toUpperCase();
   if(!code||code.length<4) return showToast('⚠️ Digite o código de cancelamento','#e05555');
-  const appts=getAppts();
-  const idx=appts.findIndex(a=>a.code===code);
-  if(idx===-1) return showToast('❌ Código não encontrado. Verifique e tente novamente.','#e05555');
-  const appt=appts[idx];
-  const dataFmt=new Date(appt.date+'T12:00').toLocaleDateString('pt-BR',{day:'numeric',month:'long'});
-  if(!confirm(`Cancelar agendamento de ${appt.name} em ${dataFmt} às ${appt.slot}?`)) return;
-  const { error }=await db.from('appointments').delete().eq('barbearia_id',BARB_ID()).eq('id',appt.id);
+  if(!confirm('Tem certeza que deseja cancelar este agendamento?')) return;
+  const { data:n, error }=await db.rpc('cancelar_por_codigo',{ p_slug:getSlug(), p_code:code });
   if(error){ console.error(error); return showToast('❌ Erro ao cancelar. Tente de novo.','#e05555'); }
-  appts.splice(idx,1);
+  if(!n){ return showToast('❌ Código não encontrado. Verifique e tente novamente.','#e05555'); }
   document.getElementById('cancel-code-inp').value='';
+  const { data: oc }=await db.rpc('ocupados_todos',{ p_slug:getSlug() });
+  DB.taken = oc||[];
   showToast('✅ Agendamento cancelado com sucesso!');
   setTimeout(()=>voltarInicio(),1800);
 }

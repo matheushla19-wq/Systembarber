@@ -237,29 +237,12 @@ const DB = { appts:[], barbers:[], services:[], folgas:[], folgasBrb:{} };
 async function loadAll(){
   const slug = getSlug();
   if(!slug) return false;
-  const { data: barb } = await db.from('barbearias').select('*').eq('slug', slug).maybeSingle();
+  const { data: barb } = await db.from('barbearias_public').select('*').eq('slug', slug).maybeSingle();
   if(!barb) return false;
   BARBEARIA = barb;
-  const bid = barb.id;
-  const [ap, br, sv, fo, fb] = await Promise.all([
-    db.from('appointments').select('*').eq('barbearia_id', bid),
-    db.from('barbers').select('*').eq('barbearia_id', bid),
-    db.from('services').select('*').eq('barbearia_id', bid),
-    db.from('folgas').select('*').eq('barbearia_id', bid),
-    db.from('folgas_barbeiro').select('*').eq('barbearia_id', bid)
-  ]);
-  DB.appts = (ap.data||[]).map(r=>({
-    id:r.id, code:r.code, name:r.name, tel:r.tel,
-    services:r.services||[], serviceIds:r.service_ids||[],
-    barber:r.barber, barberId:r.barber_id,
-    date:r.date, slot:r.slot, total:r.total,
-    pagamento:r.pagamento, createdAt:r.created_at
-  }));
-  DB.barbers  = br.data||[];
-  DB.services = sv.data||[];
-  DB.folgas   = (fo.data||[]).map(r=>r.date);
+  const { data: fb } = await db.from('folgas_barbeiro').select('*').eq('barbearia_id', barb.id);
   DB.folgasBrb = {};
-  (fb.data||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
+  (fb||[]).forEach(r=>{ (DB.folgasBrb[r.barber_id] = DB.folgasBrb[r.barber_id]||[]).push(r.date); });
   return true;
 }
 
@@ -276,6 +259,7 @@ function migrateBarbers(){ /* nao e mais necessario com o banco de dados */ }
 // Quem está logado
 let currentBarberId=null;
 let currentBarberName='';
+let currentBarberPw='';
 
 // ============================================================
 // LOGIN (pela senha do próprio barbeiro)
@@ -284,10 +268,12 @@ async function doLogin(){
   const ok=await ready;
   if(!ok){ document.getElementById('login-err').textContent='Barbearia não encontrada. Confira o link.'; document.getElementById('login-err').style.display='block'; return; }
   const typed=document.getElementById('pw-input').value;
-  const me=getBarbers().find(b=>b.pw && b.pw===typed);
+  const { data, error }=await db.rpc('login_barbeiro',{ p_slug:getSlug(), p_senha:typed });
+  const me=(data&&data[0])||null;
   if(me){
     currentBarberId=me.id;
     currentBarberName=me.name;
+    currentBarberPw=typed;
     document.getElementById('login-wrap').style.display='none';
     document.getElementById('app').style.display='block';
     initApp();
@@ -297,7 +283,7 @@ async function doLogin(){
   }
 }
 function sair(){
-  currentBarberId=null; currentBarberName='';
+  currentBarberId=null; currentBarberName=''; currentBarberPw='';
   document.getElementById('app').style.display='none';
   document.getElementById('login-wrap').style.display='flex';
   document.getElementById('pw-input').value='';
@@ -307,12 +293,24 @@ function sair(){
 // ============================================================
 // INIT
 // ============================================================
-function initApp(){
+async function initApp(){
   applyLogos();
   document.getElementById('brb-tag').textContent='💈 '+currentBarberName;
+  await carregarAgenda();
   renderStats();
   renderAgenda();
   checkNotifStatus();
+}
+async function carregarAgenda(){
+  const { data, error }=await db.rpc('agenda_barbeiro',{ p_slug:getSlug(), p_barber_id:currentBarberId, p_senha:currentBarberPw });
+  if(error){ console.error(error); DB.appts=[]; return; }
+  DB.appts=(data||[]).map(r=>({
+    id:r.id, code:r.code, name:r.name, tel:r.tel,
+    services:r.services||[], serviceIds:r.service_ids||[],
+    barber:r.barber, barberId:r.barber_id,
+    date:r.date, slot:r.slot, total:r.total,
+    pagamento:r.pagamento, createdAt:r.created_at
+  }));
 }
 function applyLogos(){
   const n=getNome();
@@ -410,7 +408,7 @@ function renderAgenda(){
 
 async function delAppt(id){
   if(!confirm('Cancelar este agendamento?')) return;
-  const { error }=await db.from('appointments').delete().eq('barbearia_id',BARB_ID()).eq('id',id);
+  const { error }=await db.rpc('cancelar_agendamento',{ p_slug:getSlug(), p_barber_id:currentBarberId, p_senha:currentBarberPw, p_appt_id:id });
   if(error){ console.error(error); return toast('❌ Erro ao cancelar','#e05555'); }
   DB.appts=DB.appts.filter(a=>a.id!==id);
   renderStats(); renderAgenda(); toast('🗑️ Agendamento cancelado','#888');
@@ -427,15 +425,9 @@ function clearFilters(){
 async function changePassword(){
   const pw=document.getElementById('new-pw').value.trim();
   if(!pw||pw.length<4) return toast('⚠️ Senha muito curta (mín. 4 caracteres)','#e05555');
-  const barbers=getBarbers();
-  const me=barbers.find(b=>b.id===currentBarberId);
-  if(!me) return toast('⚠️ Erro ao identificar o barbeiro','#e05555');
-  // evita que a nova senha seja igual à de outro barbeiro
-  if(barbers.some(b=>b.id!==currentBarberId && b.pw===pw))
-    return toast('⚠️ Essa senha já está em uso por outro barbeiro','#e05555');
-  const { error }=await db.from('barbers').update({pw}).eq('barbearia_id',BARB_ID()).eq('id',currentBarberId);
-  if(error){ console.error(error); return toast('❌ Erro ao salvar a senha','#e05555'); }
-  me.pw=pw;
+  const { error }=await db.rpc('mudar_senha_barbeiro',{ p_slug:getSlug(), p_barber_id:currentBarberId, p_atual:currentBarberPw, p_nova:pw });
+  if(error){ console.error(error); return toast('❌ Erro ao alterar a senha','#e05555'); }
+  currentBarberPw=pw;
   document.getElementById('new-pw').value='';
   toast('✅ Senha alterada!');
 }
@@ -464,7 +456,7 @@ async function addMinhaFolga(){
   if(!d) return toast('⚠️ Selecione uma data','#e05555');
   const folgas=getMinhasFolgas();
   if(folgas.includes(d)) return toast('⚠️ Essa data já está marcada como folga','#e05555');
-  const { error }=await db.from('folgas_barbeiro').insert({barbearia_id:BARB_ID(),barber_id:currentBarberId,date:d});
+  const { error }=await db.rpc('folga_barbeiro_add',{ p_slug:getSlug(), p_barber_id:currentBarberId, p_senha:currentBarberPw, p_date:d });
   if(error){ console.error(error); return toast('❌ Erro ao salvar a folga','#e05555'); }
   (DB.folgasBrb[currentBarberId]=DB.folgasBrb[currentBarberId]||[]).push(d);
   document.getElementById('folga-inp').value='';
@@ -472,7 +464,7 @@ async function addMinhaFolga(){
   toast('✅ Folga adicionada!');
 }
 async function removeMinhaFolga(d){
-  const { error }=await db.from('folgas_barbeiro').delete().eq('barbearia_id',BARB_ID()).eq('barber_id',currentBarberId).eq('date',d);
+  const { error }=await db.rpc('folga_barbeiro_del',{ p_slug:getSlug(), p_barber_id:currentBarberId, p_senha:currentBarberPw, p_date:d });
   if(error){ console.error(error); return toast('❌ Erro ao remover','#e05555'); }
   DB.folgasBrb[currentBarberId]=getMinhasFolgas().filter(f=>f!==d);
   renderMinhasFolgas();
