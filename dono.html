@@ -169,6 +169,18 @@
   </div>
 </div>
 
+<!-- ASSINATURA (bloqueio quando o teste acaba) -->
+<div class="login-wrap" id="assinatura-wrap" style="display:none">
+  <div class="login-box" style="max-width:460px">
+    <div class="login-logo">⏳ Seu teste acabou</div>
+    <div class="login-sub">Assine para continuar usando o SystemBarber</div>
+    <button class="btn-login" onclick="assinar('mensal')">Assinar Mensal — R$ 47/mês</button>
+    <button class="btn-login" style="margin-top:0.6rem" onclick="assinar('trimestral')">Assinar Trimestral — R$ 127/3 meses</button>
+    <button class="btn-login" style="background:none;border:1px solid #555;color:#aaa;margin-top:0.9rem;font-size:0.82rem" onclick="location.reload()">Já paguei — atualizar</button>
+    <div style="text-align:center;margin-top:0.7rem"><a href="#" onclick="sair();return false;" style="color:#888;font-size:0.8rem">Sair</a></div>
+  </div>
+</div>
+
 <!-- APP -->
 <div id="app">
   <nav>
@@ -267,6 +279,16 @@
         <div class="pw-row">
           <input type="text" id="link-barbeiro" readonly style="font-size:0.72rem"/>
           <button class="btn-add" onclick="copiar(document.getElementById('link-barbeiro').value)">Copiar</button>
+        </div>
+      </div>
+
+      <!-- PLANO E ASSINATURA -->
+      <div class="card">
+        <div class="card-title"><span class="ico">💳</span> Plano e assinatura</div>
+        <p class="section-label" id="status-plano" style="text-transform:none;letter-spacing:0;font-size:0.85rem;margin-bottom:0.9rem">—</p>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap">
+          <button class="btn-add" onclick="assinar('mensal')">Mensal — R$ 47</button>
+          <button class="btn-add" onclick="assinar('trimestral')">Trimestral — R$ 127</button>
         </div>
       </div>
 
@@ -474,11 +496,14 @@ async function bootstrap(){
 async function iniciarApp(){
   document.getElementById('login-wrap').style.display='none';
   document.getElementById('onboarding-wrap').style.display='none';
-  document.getElementById('app').style.display='block';
   await loadAll();
+  if(!barbeariaAtiva()){ mostrarTelaAssinatura(); return; }
+  document.getElementById('assinatura-wrap').style.display='none';
+  document.getElementById('app').style.display='block';
   initApp();
   mostrarEmailConta();
   mostrarLinks();
+  mostrarStatusPlano();
 }
 
 // ============================================================
@@ -744,6 +769,43 @@ function mostrarLinks(){
   document.getElementById('link-barbeiro').value=base+'/admin.html?loja='+BARBEARIA.slug;
 }
 function copiar(t){ navigator.clipboard.writeText(t).then(()=>toast('✅ Copiado!')); }
+
+// ===== PLANO / ASSINATURA =====
+function barbeariaAtiva(){
+  if(!BARBEARIA) return false;
+  if(BARBEARIA.plano_status==='ativo') return true;
+  if(BARBEARIA.plano_status==='teste' && new Date(BARBEARIA.plano_ate) > new Date()) return true;
+  return false;
+}
+function diasRestantes(){
+  if(!BARBEARIA || !BARBEARIA.plano_ate) return 0;
+  return Math.max(0, Math.ceil((new Date(BARBEARIA.plano_ate) - new Date())/(1000*60*60*24)));
+}
+function mostrarStatusPlano(){
+  const el=document.getElementById('status-plano'); if(!el) return;
+  if(BARBEARIA.plano_status==='ativo'){
+    el.innerHTML='✅ Assinatura <b>ativa</b> — renova em '+new Date(BARBEARIA.plano_ate).toLocaleDateString('pt-BR')+'.';
+  } else if(BARBEARIA.plano_status==='teste'){
+    el.innerHTML='🎁 <b>Teste grátis</b> — restam <b>'+diasRestantes()+' dia(s)</b>. Assine para não perder o acesso.';
+  } else {
+    el.innerHTML='⚠️ Assinatura <b>'+BARBEARIA.plano_status+'</b>. Assine para reativar.';
+  }
+}
+async function assinar(plano){
+  toast('Abrindo o pagamento...');
+  const { data, error }=await db.functions.invoke('criar-assinatura',{ body:{ plano } });
+  if(error || !data || data.error || !data.init_point){
+    console.error(error||data);
+    return toast('❌ Erro ao iniciar a assinatura. Tente de novo.','#e05555');
+  }
+  window.location.href=data.init_point;
+}
+function mostrarTelaAssinatura(){
+  document.getElementById('login-wrap').style.display='none';
+  document.getElementById('onboarding-wrap').style.display='none';
+  document.getElementById('app').style.display='none';
+  document.getElementById('assinatura-wrap').style.display='flex';
+}
 
 // ============================================================
 // CONFIG: FOLGAS
