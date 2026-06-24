@@ -154,6 +154,18 @@
     <div class="login-err" id="auth-msg" style="display:none"></div>
     <button class="btn-login" onclick="fazerLogin()">Entrar</button>
     <button class="btn-login" style="background:none;border:1px solid var(--gold);color:var(--gold);margin-top:0.6rem;" onclick="fazerCadastro()">Criar conta</button>
+    <div style="text-align:center;margin-top:0.8rem"><a href="#" onclick="esqueciSenha();return false;" style="color:#888;font-size:0.8rem">Esqueci minha senha</a></div>
+  </div>
+</div>
+
+<!-- RECUPERAR SENHA -->
+<div class="login-wrap" id="recovery-wrap" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">🔑 Nova senha</div>
+    <div class="login-sub">Defina sua nova senha de acesso</div>
+    <input type="password" id="rec-senha" placeholder="Nova senha (mín. 6)" style="text-align:left;letter-spacing:0;" onkeydown="if(event.key==='Enter')salvarNovaSenha()"/>
+    <div class="login-err" id="rec-msg" style="display:none"></div>
+    <button class="btn-login" onclick="salvarNovaSenha()">Salvar nova senha</button>
   </div>
 </div>
 
@@ -424,6 +436,27 @@ async function fazerLogin(){
 }
 async function sair(){ await db.auth.signOut(); location.reload(); }
 
+async function esqueciSenha(){
+  const email=document.getElementById('email-input').value.trim();
+  if(!email) return authMsg('Digite seu email no campo acima e clique de novo em "Esqueci minha senha".',true);
+  const { error }=await db.auth.resetPasswordForEmail(email, { redirectTo: location.origin+'/dono.html' });
+  if(error){ console.error(error); return authMsg('Nao foi possivel enviar. Confira o email digitado.',true); }
+  authMsg('📧 Enviamos um link de recuperacao para seu email. Veja a caixa de entrada (e o spam).',false);
+}
+function recMsg(m,err){ const el=document.getElementById('rec-msg'); el.textContent=m; el.style.color=err?'var(--danger)':'var(--success)'; el.style.display='block'; }
+function mostrarRecovery(){
+  ['login-wrap','onboarding-wrap','assinatura-wrap','app'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  document.getElementById('recovery-wrap').style.display='flex';
+}
+async function salvarNovaSenha(){
+  const pw=document.getElementById('rec-senha').value;
+  if(!pw||pw.length<6) return recMsg('Senha muito curta (mín. 6 caracteres).',true);
+  const { error }=await db.auth.updateUser({ password: pw });
+  if(error){ console.error(error); return recMsg('Erro ao salvar. O link pode ter expirado — peca outro.',true); }
+  recMsg('✅ Senha alterada! Entrando...',false);
+  setTimeout(()=>{ location.href=location.origin+'/dono.html'; },1500);
+}
+
 async function carregarBarbearia(){
   const { data:{ user } }=await db.auth.getUser();
   if(!user) return null;
@@ -473,6 +506,7 @@ async function semearPadrao(){
 
 let _booting=false;
 async function bootstrap(){
+  if(location.hash && location.hash.includes('type=recovery')){ mostrarRecovery(); return; }
   if(_booting) return; _booting=true;
   try{
     const { data:{ session } }=await db.auth.getSession();
@@ -936,6 +970,7 @@ function toast(msg,color){const t=document.getElementById('toast');t.textContent
 
 // Reage a login/logout e inicia
 db.auth.onAuthStateChange((event)=>{
+  if(event==='PASSWORD_RECOVERY') return mostrarRecovery();
   if(event==='SIGNED_IN') bootstrap();
   if(event==='SIGNED_OUT') location.reload();
 });
