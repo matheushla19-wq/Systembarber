@@ -261,6 +261,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
+// sem loja definida = visitante na raiz -> vitrine de vendas
+if(!new URLSearchParams(location.search).get('loja')){ location.replace('/home.html'); }
 // ============================================================
 // SUPABASE (banco de dados na nuvem)
 // ============================================================

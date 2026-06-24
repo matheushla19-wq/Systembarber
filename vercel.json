@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    {
+      "source": "/",
+      "missing": [{ "type": "query", "key": "loja" }],
+      "destination": "/home.html"
+    }
+  ]
+}
